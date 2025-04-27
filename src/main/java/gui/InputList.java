@@ -1,23 +1,22 @@
 package gui;
 
+import listeners.Undo;
+
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Stack;
 
 
 public class InputList extends JScrollPane {
     private DefaultListModel<String> list;
     private JList<String> mainList;
-    private InputList inputList = null;
-    private JComponent[] components;
+    private Input[] components;
+    private InputList childList=null;
     private Dimension dimension;
+    private Stack<Undo> stackEnum;
+    private Stack<String> stackString;
+    private StringBuilder sb;
     InputList(Dimension dimension) {
-        this.dimension = dimension;
-        this.setup();
-    }
-    InputList(Dimension dimension, InputList inputList) {
-        this.inputList = inputList;
         this.dimension = dimension;
         this.setup();
     }
@@ -25,24 +24,43 @@ public class InputList extends JScrollPane {
     private void setup() {
         list = new DefaultListModel<>();
         mainList = new JList<>(list);
+        stackEnum = new Stack<>();
+        stackString = new Stack<>();
         mainList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
+        this.getList()
+                .setBorder(BorderFactory.createMatteBorder(1,1,1,1, Color.lightGray));
         mainList.setCellRenderer(getRenderer());
         this.setViewportView(mainList);
         this.setPreferredSize(dimension);
+    }
+
+    public void setChildList(InputList childList) {
+        this.childList = childList;
+    }
+    public InputList getChildList() {
+        return childList;
     }
 
     public JList<String> getList() {
         return mainList;
     }
 
+    public Stack getStack(String s) {
+        return switch(s){
+            case "ENUM" -> stackEnum;
+            case "STRING" -> stackString;
+            default -> null;
+        };
+    }
+
     public DefaultListModel<String> getModel() {
         return list;
     }
 
-    public void setInput(JComponent... components){
+    public void setInput(Input... components){
         this.components = components;
     }
-    public JComponent[] getInput() {
+    public Input[] getInput() {
         return this.components;
     }
 
@@ -51,40 +69,26 @@ public class InputList extends JScrollPane {
         mainList.setModel(model);
     }
 
-    private void check(InputList i) throws NullPointerException {
-        for(JComponent c: i.getInput()) {
-            if(c instanceof JTextField t && (t.getText().isEmpty() && t.isEnabled())) {
-                throw new NullPointerException();
-            }
-            else if(c instanceof JComboBox<?> t
-                    && (t.getSelectedItem().toString().isEmpty() && t.isEnabled())) {
-                throw new NullPointerException();
-            }
-        }
-    }
-
-    public void perform() {
+    public void check() throws NullPointerException {
         try {
-            check(inputList);
-            check(this);
-            inputList.addAll();
-            this.addAll();
+            for (Input c : this.getInput()) {
+                c.getInput();
+            }
         } catch (NullPointerException e) {
-            System.out.println("Input Blank");
+            throw new NullPointerException();
         }
     }
 
     public void addAll() {
-        StringBuilder sb = new StringBuilder();
-        for(JComponent x: this.getInput()) {
-            if(x instanceof JTextField t) {
-                sb.append(t.getText()).append(" ");
-            }
-            else if(x instanceof JComboBox<?> t && t.isEnabled()) {
-                sb.append(t.getSelectedItem().toString()).append(" ");
-            }
+        sb = new StringBuilder();
+        for(Input x: this.getInput()) {
+            sb.append(x.getInput()).append(" ");
         }
         this.addListElement(sb.toString());
+    }
+
+    public String getString() {
+        return sb.toString();
     }
 
     public void changeList(DefaultListModel<String> model) {

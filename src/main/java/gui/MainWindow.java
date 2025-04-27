@@ -1,6 +1,7 @@
 package gui;
 
-import net.miginfocom.swing.MigLayout;
+import listeners.*;
+
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,8 +13,10 @@ interface PanelMaker {
 
 public class MainWindow extends JFrame {
     private static MainWindow mainWindow;
+
     int x = 700, y = 520;
     private MainWindow() {
+
         new WindowBuilder(this)
                 .setDimension(x,y)
                 .setTitle("Automatic File Sorter")
@@ -21,6 +24,7 @@ public class MainWindow extends JFrame {
                 .setWindowConstants(JFrame.EXIT_ON_CLOSE)
                 .setComponents(mainPanel())
                 .build();
+
         this.setJMenuBar(new MenuBar());
     }
     public void start() {
@@ -44,22 +48,39 @@ public class MainWindow extends JFrame {
         JScrollPane scrollPane = new JScrollPane();
         scrollPane.setPreferredSize(new Dimension(300,200));
         p.setLayout(new BorderLayout());
+
+        InputList rightList = new InputList(new Dimension(290,280));
+        InputList leftList = new InputList(new Dimension(290,280));
+        ComboBoxInput file = new ComboBoxInput(new JRadioButton("File Format"), x-150,20);
+        DateInput date = new DateInput("Date", x-600,25);
+        Input sourceFolder = new ComboBoxInput(new JLabel("Source Folder"),x-375,25);
+        Input destFolder = new ComboBoxInput(new JLabel("Destination Folder"),x-375,25);
+        leftList.setInput(file,date,sourceFolder);
+        leftList.setChildList(rightList);
+        rightList.setInput(destFolder);
+        sourceFolder.setListener(new ComboboxListener(sourceFolder,BoxInput.FOLDER));
+        destFolder.setListener(new ComboboxListener(destFolder,BoxInput.FOLDER));
         p.add(setPanel(e -> {
-            e.setPreferredSize(new Dimension(x,160));
-            e.add(new ComboBoxInput("File Format", x-155,20));
-            e.add(new DateInput("Date", x-600,25));
-            e.add(new DirectoryInput("Source Folder",x-380,25));
-            e.add(new DirectoryInput("Destination Folder",x-380,25));
+
+            e.setPreferredSize(new Dimension(x,140));
+            e.add(file);
+            e.add(date);
+            e.add(sourceFolder);
+            e.add(destFolder);
+
         }), BorderLayout.NORTH);
+
         p.add(setPanel(e -> {
-            e.add(new InputList(new Dimension(290,280)));
+            e.add(leftList);
         }),BorderLayout.WEST);
 
         p.add(setPanel(e -> {
+
             e.setPreferredSize(new Dimension(100,280));
             e.setLayout(new BoxLayout(e, BoxLayout.Y_AXIS));
-            Stream.of(new JButton("Add"),new JButton("Remove"),
-                            new JButton("Clear"), new JButton("Undo"),
+
+            Stream.of(new AddListener(leftList),new RemoveListener(leftList),
+                            new ClearListener(leftList), new UndoListener(leftList),
                             new JButton("Run"))
                     .forEach(b ->
                             {
@@ -67,10 +88,13 @@ public class MainWindow extends JFrame {
                                 e.add(setPanel(k -> k.add(b)));
                             }
                     );
+
         }),BorderLayout.CENTER);
 
         p.add(setPanel(e -> {
-            e.add(new InputList(new Dimension(290,280)));
+
+            e.add(rightList);
+
         }),BorderLayout.EAST);
         return p;
     }

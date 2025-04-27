@@ -1,0 +1,29 @@
+package listeners;
+
+import gui.InputList;
+
+import java.awt.event.ActionEvent;
+
+public class ClearListener extends ButtonListener {
+
+    public ClearListener(InputList... list) {
+        this.list = list;
+        this.setText("Clear");
+        this.addActionListener(this);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        for(InputList l: list) {
+            l.getModel().removeAllElements();
+            l.getStack("ENUM").clear();
+            l.getStack("STRING").clear();
+            if(this.hasChild(l)) {
+                InputList temp = l.getChildList();
+                temp.getStack("ENUM").clear();
+                temp.getStack("STRING").clear();
+                temp.getModel().removeAllElements();
+            }
+        }
+    }
+}
