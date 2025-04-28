@@ -5,6 +5,7 @@ import listeners.*;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.DataInput;
 import java.util.stream.Stream;
 
 interface PanelMaker {
@@ -12,10 +13,21 @@ interface PanelMaker {
 }
 
 public class MainWindow extends JFrame {
-    private static MainWindow mainWindow;
 
+    private static MainWindow mainWindow;
+    private final InputList rightList, leftList;
+    private final ComboBoxInput file;
+    private final DateInput date;
+    private final Input sourceFolder, destFolder;
     int x = 700, y = 520;
     private MainWindow() {
+
+        rightList = new InputList(new Dimension(290,280));
+        leftList = new InputList(new Dimension(290,280));
+        file = new ComboBoxInput(new JRadioButton("File Format"), x-150,20);
+        date = new DateInput("Date", x-600,25);
+        sourceFolder = new ComboBoxInput(new JLabel("Source Folder"),x-375,25);
+        destFolder = new ComboBoxInput(new JLabel("Destination Folder"),x-375,25);
 
         new WindowBuilder(this)
                 .setDimension(x,y)
@@ -49,15 +61,10 @@ public class MainWindow extends JFrame {
         scrollPane.setPreferredSize(new Dimension(300,200));
         p.setLayout(new BorderLayout());
 
-        InputList rightList = new InputList(new Dimension(290,280));
-        InputList leftList = new InputList(new Dimension(290,280));
-        ComboBoxInput file = new ComboBoxInput(new JRadioButton("File Format"), x-150,20);
-        DateInput date = new DateInput("Date", x-600,25);
-        Input sourceFolder = new ComboBoxInput(new JLabel("Source Folder"),x-375,25);
-        Input destFolder = new ComboBoxInput(new JLabel("Destination Folder"),x-375,25);
         leftList.setInput(file,date,sourceFolder);
         leftList.setChildList(rightList);
         rightList.setInput(destFolder);
+        InputListListener.setOneClickListener(leftList);
         sourceFolder.setListener(new ComboboxListener(sourceFolder,BoxInput.FOLDER));
         destFolder.setListener(new ComboboxListener(destFolder,BoxInput.FOLDER));
         p.add(setPanel(e -> {

@@ -16,24 +16,23 @@ public class UndoListener extends ButtonListener{
     @Override
     public void actionPerformed(ActionEvent e) {
         for(InputList l: list) {
-            switch (l.getStack("ENUM").peek()) {
+            switch (l.getStack().peek().undo()) {
                 case Undo.ADD:
-                    l.getModel().removeElement(l.getStack("STRING").peek());
-                    this.pop(l);
+                    l.getModel().removeElement(l.getStack().peek().input());
+                    l.getStack().pop();
                     if(this.hasChild(l)) {
                         InputList temp = l.getChildList();
-                        temp.getModel().removeElement(temp.getStack("STRING").peek());
-                        this.pop(temp);
+                        temp.getModel().removeElement(temp.getStack().peek().input());
+                        temp.getStack().pop();
                     }
                     break;
                 case Undo.REMOVE:
-                    l.addListElement((String) l.getStack("STRING").peek());
-
-                    this.pop(l);
+                    l.addListElement(l.getStack().peek().input());
+                    l.getStack().pop();
                     if(this.hasChild(l)) {
                         InputList temp = l.getChildList();
-                        temp.addListElement((String) temp.getStack("STRING").peek());
-                        this.pop(temp);
+                        temp.addListElement(temp.getStack().peek().input());
+                        temp.getStack().pop();
                     }
                     break;
 
@@ -41,10 +40,5 @@ public class UndoListener extends ButtonListener{
                     break;
             }
         }
-    }
-
-    private void pop(InputList l) {
-        l.getStack("ENUM").pop();
-        l.getStack("STRING").pop();
     }
 }

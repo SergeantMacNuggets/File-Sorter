@@ -16,12 +16,10 @@ public class ClearListener extends ButtonListener {
     public void actionPerformed(ActionEvent e) {
         for(InputList l: list) {
             l.getModel().removeAllElements();
-            l.getStack("ENUM").clear();
-            l.getStack("STRING").clear();
+            l.getStack().clear();
             if(this.hasChild(l)) {
                 InputList temp = l.getChildList();
-                temp.getStack("ENUM").clear();
-                temp.getStack("STRING").clear();
+                temp.getStack().clear();
                 temp.getModel().removeAllElements();
             }
         }

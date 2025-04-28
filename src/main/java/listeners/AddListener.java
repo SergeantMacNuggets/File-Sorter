@@ -27,13 +27,11 @@ public class AddListener extends ButtonListener implements ActionListener {
         }
         for(InputList l: list) {
             l.addAll();
-            l.getStack("ENUM").push(Undo.ADD);
-            l.getStack("STRING").push(l.getString());
+            l.getStack().push(new Data(Undo.ADD,l.getString()));
             if(this.hasChild(l)) {
                 InputList temp = l.getChildList();
                 temp.addAll();
-                temp.getStack("ENUM").push(Undo.ADD);
-                temp.getStack("STRING").push(temp.getString());
+                temp.getStack().push(new Data(Undo.ADD, temp.getString()));
             }
         }
     }

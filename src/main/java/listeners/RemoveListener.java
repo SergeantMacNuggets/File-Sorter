@@ -20,13 +20,11 @@ public class RemoveListener extends ButtonListener {
             for (InputList l : list) {
                 DefaultListModel<String> temp = l.getModel();
                 int selectedIndex = l.getList().getSelectedIndex();
-                l.getStack("ENUM").push(Undo.REMOVE);
-                l.getStack("STRING").push(l.getModel().get(selectedIndex));
+                l.getStack().push(new Data(Undo.REMOVE, l.getModel().get(selectedIndex)));
                 temp.removeElementAt(selectedIndex);
                 if (this.hasChild(l)) {
                     InputList child = l.getChildList();
-                    child.getStack("ENUM").push(Undo.REMOVE);
-                    child.getStack("STRING").push(child.getModel().get(selectedIndex));
+                    child.getStack().push(new Data(Undo.REMOVE,child.getModel().get(selectedIndex)));
                     child.getModel().removeElementAt(selectedIndex);
                 }
             }

@@ -1,5 +1,6 @@
 package gui;
 
+import listeners.Data;
 import listeners.Undo;
 
 import javax.swing.*;
@@ -13,8 +14,9 @@ public class InputList extends JScrollPane {
     private Input[] components;
     private InputList childList=null;
     private Dimension dimension;
-    private Stack<Undo> stackEnum;
-    private Stack<String> stackString;
+//    private Stack<Undo> stackEnum;
+//    private Stack<String> stackString;
+    private Stack<Data> stack;
     private StringBuilder sb;
     InputList(Dimension dimension) {
         this.dimension = dimension;
@@ -24,8 +26,7 @@ public class InputList extends JScrollPane {
     private void setup() {
         list = new DefaultListModel<>();
         mainList = new JList<>(list);
-        stackEnum = new Stack<>();
-        stackString = new Stack<>();
+        stack = new Stack<>();
         mainList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
         this.getList()
                 .setBorder(BorderFactory.createMatteBorder(1,1,1,1, Color.lightGray));
@@ -45,13 +46,8 @@ public class InputList extends JScrollPane {
         return mainList;
     }
 
-    public Stack getStack(String s) {
-        return switch(s){
-            case "ENUM" -> stackEnum;
-            case "STRING" -> stackString;
-            default -> null;
-        };
-    }
+
+    public Stack<Data> getStack() {return stack;}
 
     public DefaultListModel<String> getModel() {
         return list;
