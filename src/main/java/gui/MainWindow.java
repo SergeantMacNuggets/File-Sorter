@@ -65,6 +65,7 @@ public class MainWindow extends JFrame {
         leftList.setChildList(rightList);
         rightList.setInput(destFolder);
         InputListListener.setOneClickListener(leftList);
+        file.setListener(new ComboboxListener(file, BoxInput.FILE));
         sourceFolder.setListener(new ComboboxListener(sourceFolder,BoxInput.FOLDER));
         destFolder.setListener(new ComboboxListener(destFolder,BoxInput.FOLDER));
         p.add(setPanel(e -> {
@@ -86,8 +87,8 @@ public class MainWindow extends JFrame {
             e.setPreferredSize(new Dimension(100,280));
             e.setLayout(new BoxLayout(e, BoxLayout.Y_AXIS));
 
-            Stream.of(new AddListener(leftList),new RemoveListener(leftList),
-                            new ClearListener(leftList), new UndoListener(leftList),
+            Stream.of(new AddButton(leftList),new RemoveButton(leftList),
+                            new ClearButton(leftList), new UndoButton(leftList),
                             new JButton("Run"))
                     .forEach(b ->
                             {
@@ -126,6 +127,7 @@ class MenuBar extends JMenuBar {
 
         return file;
     }
+
 
 
 }

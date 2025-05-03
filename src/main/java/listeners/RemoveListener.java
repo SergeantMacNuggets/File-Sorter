@@ -9,8 +9,6 @@ public class RemoveListener extends ButtonListener {
 
     public RemoveListener(InputList... list) {
         this.list = list;
-        this.setText("Remove");
-        this.addActionListener(this);
     }
 
     @SuppressWarnings("unchecked")
@@ -20,11 +18,16 @@ public class RemoveListener extends ButtonListener {
             for (InputList l : list) {
                 DefaultListModel<String> temp = l.getModel();
                 int selectedIndex = l.getList().getSelectedIndex();
-                l.getStack().push(new Data(Undo.REMOVE, l.getModel().get(selectedIndex)));
+
+                l.push(new Data(Undo.REMOVE, l.getModel().get(selectedIndex)));
                 temp.removeElementAt(selectedIndex);
+
+                if(l.getUndoCount() < l.getUndoLimit())
+                    l.setUndoCount(l.getUndoCount()+1);
+
                 if (this.hasChild(l)) {
                     InputList child = l.getChildList();
-                    child.getStack().push(new Data(Undo.REMOVE,child.getModel().get(selectedIndex)));
+                    child.push(new Data(Undo.REMOVE,child.getModel().get(selectedIndex)));
                     child.getModel().removeElementAt(selectedIndex);
                 }
             }

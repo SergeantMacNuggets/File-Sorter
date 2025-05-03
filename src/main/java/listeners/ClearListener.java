@@ -8,8 +8,6 @@ public class ClearListener extends ButtonListener {
 
     public ClearListener(InputList... list) {
         this.list = list;
-        this.setText("Clear");
-        this.addActionListener(this);
     }
 
     @Override

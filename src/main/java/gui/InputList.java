@@ -14,12 +14,13 @@ public class InputList extends JScrollPane {
     private Input[] components;
     private InputList childList=null;
     private Dimension dimension;
-//    private Stack<Undo> stackEnum;
-//    private Stack<String> stackString;
+    private int undoCount;
+    private final int undoLimit;
     private Stack<Data> stack;
     private StringBuilder sb;
     InputList(Dimension dimension) {
         this.dimension = dimension;
+        this.undoLimit = 5;
         this.setup();
     }
 
@@ -46,6 +47,22 @@ public class InputList extends JScrollPane {
         return mainList;
     }
 
+
+    public void setUndoCount(int undoCount) {
+        this.undoCount = undoCount;
+    }
+    public int getUndoLimit() {return undoLimit;}
+
+    public int getUndoCount() {return undoCount;}
+
+    public void push(Data data) {
+        this.stack.push(data);
+    }
+
+    public void pop() {
+        this.stack.pop();
+
+    }
 
     public Stack<Data> getStack() {return stack;}
 

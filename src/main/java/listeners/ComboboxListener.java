@@ -6,6 +6,7 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Objects;
+import java.util.Set;
 
 public class ComboboxListener implements ActionListener {
     BoxInput b;
@@ -21,7 +22,10 @@ public class ComboboxListener implements ActionListener {
         switch (b) {
             case FILE:
                 JComboBox<String> file = (JComboBox<String>) i.getTextField();
-                System.out.println("Settings");
+                if(Objects.equals(file.getSelectedItem(), "Other")) {
+                    file.setSelectedIndex(-1);
+                    Settings.getInstance().start();
+                }
                 break;
             case FOLDER:
                 JComboBox<String> folder = (JComboBox<String>) i.getTextField();
