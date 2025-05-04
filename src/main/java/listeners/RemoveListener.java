@@ -1,38 +1,82 @@
 package listeners;
 
+import gui.FileMap;
 import gui.InputList;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
-public class RemoveListener extends ButtonListener {
+public class RemoveListener extends ButtonListener implements MouseListener {
 
     public RemoveListener(InputList... list) {
         this.list = list;
     }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public void actionPerformed(ActionEvent e) {
+    private void perform() {
         try {
             for (InputList l : list) {
-                DefaultListModel<String> temp = l.getModel();
-                int selectedIndex = l.getList().getSelectedIndex();
+                JList<String> temp = l.getList();
+                int selectedIndex = temp.getSelectedIndex();
 
-                l.push(new Data(Undo.REMOVE, l.getModel().get(selectedIndex)));
-                temp.removeElementAt(selectedIndex);
+                l.push(new Data(Undo.REMOVE, temp.getSelectedValue()));
 
-                if(l.getUndoCount() < l.getUndoLimit())
+                l.getModel().removeElementAt(selectedIndex);
+
+                if(l.getUndoCount() < l.getUndoLimit()) {
                     l.setUndoCount(l.getUndoCount()+1);
+                }
 
-                if (this.hasChild(l)) {
+                if (!l.childInputState() && hasChild(l)) {
                     InputList child = l.getChildList();
                     child.push(new Data(Undo.REMOVE,child.getModel().get(selectedIndex)));
                     child.getModel().removeElementAt(selectedIndex);
+
                 }
             }
-        } catch (ArrayIndexOutOfBoundsException x) {
+        } catch (NullPointerException x) {
             System.out.println("null");
         }
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        perform();
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public void mouseClicked(MouseEvent e) {
+
+        if(SwingUtilities.isRightMouseButton(e)) {
+            JList<String> temp = (JList<String>) e.getSource();
+            temp.setSelectedIndex(temp.locationToIndex(e.getPoint()));
+
+            if(e.getClickCount() % 2 == 0 && !e.isConsumed()) {
+                FileMap.getInstance().remove(temp.getSelectedValue());
+                perform();
+            }
+        }
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+
     }
 }

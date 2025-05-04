@@ -1,6 +1,11 @@
 package gui;
+
+import listeners.RemoveListener;
+
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class Settings extends JFrame {
     private static Settings settings;
@@ -10,14 +15,38 @@ public class Settings extends JFrame {
     Settings() {
         categoryList = new InputList(new Dimension(180,100));
         fileList = new InputList(new Dimension(160,0));
-        categoryButton = new JButton();
-        okButton = new JButton();
-        fileButton = new JButton();
         categoryText = new JTextField();
         fileText = new JTextField();
+        categoryButton = new AddButton(categoryList);
+        fileButton = new AddButton(fileList);
+        fileList.setInput(fileText);
+        categoryList.setInput(categoryText);
+        categoryList.setChildList(fileList);
+        categoryList.ignoreChildInput(true);
+        for(String key: FileMap.getInstance().keySet()) {
+            categoryList.addListElement(key);
+        }
 
-        WindowBuilder windowBuilder = new WindowBuilder(this);
-        windowBuilder
+        categoryList.getList().addMouseListener(new MouseAdapter() {
+            @SuppressWarnings("unchecked")
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if(SwingUtilities.isLeftMouseButton(e)){
+                    JList<String> mouseList = (JList<String>) e.getSource();
+                    String key = mouseList.getSelectedValue();
+                    categoryList.getChildList().setModel(FileMap.getInstance().get(key));
+                }
+            }
+        });
+        categoryButton.addActionListener(e->{
+            if(!FileMap.getInstance().containsKey(categoryText.getText()))
+                FileMap.getInstance().put(categoryText.getText(), new DefaultListModel<>());
+        });
+
+        categoryList.getList().addMouseListener(new RemoveListener(categoryList));
+        fileList.getList().addMouseListener(new RemoveListener(fileList));
+
+        new WindowBuilder(this)
                 .setDimension(400,300)
                 .setTitle("Settings")
                 .setWindowConstants(JFrame.DO_NOTHING_ON_CLOSE)
@@ -52,9 +81,15 @@ public class Settings extends JFrame {
         return main;
     }
 
+
     private JPanel getSouthPanel() {
         JPanel south =  new JPanel();
         okButton = new JButton("Ok");
+        okButton.addActionListener(_->{
+            MainWindow.getInstance().updateFormat();
+            this.dispose();
+            this.setVisible(false);
+        });
         cancelButton = new JButton("Cancel");
         cancelButton.addActionListener(e->{
             this.dispose();
@@ -90,6 +125,7 @@ public class Settings extends JFrame {
         p.add(b);
         return p;
     }
+
 
 
 }

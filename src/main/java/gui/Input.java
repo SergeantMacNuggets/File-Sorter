@@ -39,7 +39,7 @@ class ComboBoxInput extends Input {
         textField.addActionListener(e);
     }
 
-    public JComponent getTextField() {
+    public JComboBox<String> getTextField() {
         return textField;
     }
     @Override

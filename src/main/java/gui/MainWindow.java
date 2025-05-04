@@ -6,6 +6,7 @@ import listeners.*;
 import javax.swing.*;
 import java.awt.*;
 import java.io.DataInput;
+import java.io.File;
 import java.util.stream.Stream;
 
 interface PanelMaker {
@@ -28,7 +29,6 @@ public class MainWindow extends JFrame {
         date = new DateInput("Date", x-600,25);
         sourceFolder = new ComboBoxInput(new JLabel("Source Folder"),x-375,25);
         destFolder = new ComboBoxInput(new JLabel("Destination Folder"),x-375,25);
-
         new WindowBuilder(this)
                 .setDimension(x,y)
                 .setTitle("Automatic File Sorter")
@@ -37,6 +37,7 @@ public class MainWindow extends JFrame {
                 .setComponents(mainPanel())
                 .build();
 
+        this.updateFormat();
         this.setJMenuBar(new MenuBar());
     }
     public void start() {
@@ -53,6 +54,19 @@ public class MainWindow extends JFrame {
         JPanel p = new JPanel();
         panelMaker.set(p);
         return p;
+    }
+
+    public void updateFormat() {
+        JComboBox<String> tempBox = file.getTextField();
+        tempBox.removeAllItems();
+        for(String key: FileMap.getInstance().keySet()) {
+            DefaultListModel<String> temp = FileMap.getInstance().get(key);
+            tempBox.addItem(key);
+            for(int i=0;i<temp.getSize();i++) {
+                tempBox.addItem(temp.get(i));
+            }
+        }
+        tempBox.addItem("Other");
     }
 
     private JPanel mainPanel() {
@@ -120,13 +134,14 @@ class MenuBar extends JMenuBar {
 
     private JMenu getFileMenu() {
         JMenu file = new JMenu("File");
-        JMenuItem[] subItem = {new JMenuItem("Print"), new JMenuItem("Quit")};
-
-        subItem[1].addActionListener(e -> System.exit(0));
+        JMenuItem[] subItem = {new JMenuItem("Printer"), new JMenuItem("Quit")};
+//        subItem[0].addActionListener(_->new Printer());
+        subItem[1].addActionListener(_ -> System.exit(0));
         for(JMenuItem i: subItem) file.add(i);
 
         return file;
     }
+
 
 
 

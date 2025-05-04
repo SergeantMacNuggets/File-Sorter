@@ -1,17 +1,17 @@
 package listeners;
 
-import gui.Input;
 import gui.InputList;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
-public class UndoListener extends ButtonListener{
+public class UndoListener extends ButtonListener implements KeyListener {
     public UndoListener(InputList... list) {
         this.list = list;
     }
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
+    public void perform() {
         for(InputList l: list) {
             if (l.getUndoCount() > 0){
                 switch (l.getStack().peek().undo()) {
@@ -20,7 +20,7 @@ public class UndoListener extends ButtonListener{
                         l.pop();
                         l.setUndoCount(l.getUndoCount()-1);
                         System.out.println(l.getUndoCount());
-                        if (this.hasChild(l)) {
+                        if (!l.childInputState() && hasChild(l)) {
                             InputList temp = l.getChildList();
                             temp.getModel().removeElement(temp.getStack().peek().input());
                             temp.pop();
@@ -30,7 +30,7 @@ public class UndoListener extends ButtonListener{
                         l.addListElement(l.getStack().peek().input());
                         l.pop();
                         l.setUndoCount(l.getUndoCount()-1);
-                        if (this.hasChild(l)) {
+                        if (!l.childInputState() && hasChild(l)) {
                             InputList temp = l.getChildList();
                             temp.addListElement(temp.getStack().peek().input());
                             temp.pop();
@@ -42,5 +42,27 @@ public class UndoListener extends ButtonListener{
                 }
             } else return;
         }
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        perform();
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        if(e.getKeyCode() == KeyEvent.VK_Z) {
+            perform();
+        }
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+
     }
 }

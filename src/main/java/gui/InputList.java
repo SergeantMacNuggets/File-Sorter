@@ -2,9 +2,12 @@ package gui;
 
 import listeners.Data;
 import listeners.Undo;
+import listeners.UndoListener;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.Stack;
 
 
@@ -12,12 +15,16 @@ public class InputList extends JScrollPane {
     private DefaultListModel<String> list;
     private JList<String> mainList;
     private Input[] components;
+    private JTextField input;
     private InputList childList=null;
     private Dimension dimension;
     private int undoCount;
     private final int undoLimit;
     private Stack<Data> stack;
     private StringBuilder sb;
+    private boolean childInput;
+
+
     InputList(Dimension dimension) {
         this.dimension = dimension;
         this.undoLimit = 5;
@@ -28,12 +35,15 @@ public class InputList extends JScrollPane {
         list = new DefaultListModel<>();
         mainList = new JList<>(list);
         stack = new Stack<>();
+        childInput = false;
         mainList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
         this.getList()
                 .setBorder(BorderFactory.createMatteBorder(1,1,1,1, Color.lightGray));
         mainList.setCellRenderer(getRenderer());
         this.setViewportView(mainList);
         this.setPreferredSize(dimension);
+        mainList.setFocusable(true);
+        mainList.addKeyListener(new UndoListener(this));
     }
 
     public void setChildList(InputList childList) {
@@ -42,6 +52,11 @@ public class InputList extends JScrollPane {
     public InputList getChildList() {
         return childList;
     }
+
+    public void ignoreChildInput(boolean childInput) {
+        this.childInput = childInput;
+    }
+    public boolean childInputState() {return this.childInput;}
 
     public JList<String> getList() {
         return mainList;
@@ -61,7 +76,6 @@ public class InputList extends JScrollPane {
 
     public void pop() {
         this.stack.pop();
-
     }
 
     public Stack<Data> getStack() {return stack;}
@@ -73,40 +87,57 @@ public class InputList extends JScrollPane {
     public void setInput(Input... components){
         this.components = components;
     }
+    public void setInput(JTextField input){
+        this.input = input;
+    }
+
     public Input[] getInput() {
         return this.components;
     }
 
-    public void setList(DefaultListModel<String> model, String s) {
-        model.addElement(s);
+    public void setModel(DefaultListModel<String> model) {
         mainList.setModel(model);
+        this.list = model;
     }
 
     public void check() throws NullPointerException {
         try {
-            for (Input c : this.getInput()) {
-                c.getInput();
+            if (components != null){
+                for (Input c : this.getInput()) {
+                    c.getInput();
+                }
+            } else {
+                if(input.getText().isBlank())
+                    throw new NullPointerException();
             }
         } catch (NullPointerException e) {
             throw new NullPointerException();
         }
     }
 
-    public void addAll() {
+    public void addAll(boolean state) throws NullPointerException {
         sb = new StringBuilder();
-        for(Input x: this.getInput()) {
-            sb.append(x.getInput()).append(" ");
+        if (components != null){
+            for (Input x : this.getInput()) {
+                sb.append(x.getInput()).append(" ");
+            }
+        } else {
+            sb.append(input.getText());
         }
-        this.addListElement(sb.toString());
+        if(state) {
+            if(!list.contains(sb.toString()))
+                this.addListElement(sb.toString());
+            else throw new NullPointerException();
+        }
+        else this.addListElement(sb.toString());
+
     }
+
 
     public String getString() {
         return sb.toString();
     }
 
-    public void changeList(DefaultListModel<String> model) {
-        mainList.setModel(model);
-    }
 
     public void addListElement(String word) {
         list.addElement(word);
