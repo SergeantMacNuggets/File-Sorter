@@ -85,6 +85,9 @@ public class InputList extends JScrollPane {
     public void pop() {
         this.stack.pop();
     }
+    public Data peek() {
+        return this.stack.peek();
+    }
 
     public Stack<Data> getStack() {return stack;}
 

@@ -19,9 +19,13 @@ public class RemoveListener extends ButtonListener implements MouseListener {
             for (InputList l : list) {
                 JList<String> temp = l.getList();
                 int selectedIndex = temp.getSelectedIndex();
+                Data listData = new Data(Undo.REMOVE, temp.getSelectedValue());
 
-                l.push(new Data(Undo.REMOVE, temp.getSelectedValue()));
-
+                if(FileMap.getInstance().containsKey(temp.getSelectedValue())) {
+                    listData.setModel(FileMap.getInstance().get(temp.getSelectedValue()));
+                    FileMap.getInstance().remove(temp.getSelectedValue());
+                }
+                l.push(listData);
                 l.getModel().removeElementAt(selectedIndex);
 
                 if(l.getUndoCount() < l.getUndoLimit()) {
@@ -54,7 +58,6 @@ public class RemoveListener extends ButtonListener implements MouseListener {
             temp.setSelectedIndex(temp.locationToIndex(e.getPoint()));
 
             if(e.getClickCount() % 2 == 0 && !e.isConsumed()) {
-                FileMap.getInstance().remove(temp.getSelectedValue());
                 perform();
             }
         }

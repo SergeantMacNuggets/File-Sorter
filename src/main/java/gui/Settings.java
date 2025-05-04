@@ -1,5 +1,7 @@
 package gui;
 
+import com.formdev.flatlaf.FlatDarkLaf;
+import com.formdev.flatlaf.FlatLaf;
 import listeners.RemoveListener;
 
 import javax.swing.*;
@@ -13,6 +15,8 @@ public class Settings extends JFrame {
     JTextField categoryText, fileText;
     InputList categoryList, fileList;
     Settings() {
+
+        FlatLaf.setup(new FlatDarkLaf());
         categoryList = new InputList(new Dimension(180,100));
         fileList = new InputList(new Dimension(160,0));
         categoryText = new JTextField();
@@ -23,6 +27,9 @@ public class Settings extends JFrame {
         categoryList.setInput(categoryText);
         categoryList.setChildList(fileList);
         categoryList.ignoreChildInput(true);
+        categoryList.getList().setFocusable(true);
+        fileList.getList().setFocusable(true);
+        fileList.getList().setEnabled(true);
         for(String key: FileMap.getInstance().keySet()) {
             categoryList.addListElement(key);
         }

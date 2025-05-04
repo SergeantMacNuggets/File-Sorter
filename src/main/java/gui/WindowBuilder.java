@@ -1,5 +1,7 @@
 package gui;
 import com.formdev.flatlaf.FlatDarculaLaf;
+import com.formdev.flatlaf.FlatDarkLaf;
+import com.formdev.flatlaf.FlatLaf;
 
 import javax.swing.*;
 import java.awt.*;
@@ -45,8 +47,9 @@ public class WindowBuilder {
         frame.setDefaultCloseOperation(windowConstants);
         frame.setPreferredSize(dimension);
         frame.setTitle(title);
+
         frame.setIconImage(
-                new ImageIcon("src/resources/icon.png").getImage()
+                new ImageIcon("/src/main/resources/icon.png").getImage()
         );
 
         if(layoutManager != null) {

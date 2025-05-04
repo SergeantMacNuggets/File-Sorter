@@ -1,7 +1,9 @@
 package listeners;
 
+import gui.FileMap;
 import gui.InputList;
 
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -19,7 +21,6 @@ public class UndoListener extends ButtonListener implements KeyListener {
                         l.getModel().removeElement(l.getStack().peek().input());
                         l.pop();
                         l.setUndoCount(l.getUndoCount()-1);
-                        System.out.println(l.getUndoCount());
                         if (!l.childInputState() && hasChild(l)) {
                             InputList temp = l.getChildList();
                             temp.getModel().removeElement(temp.getStack().peek().input());
@@ -27,13 +28,18 @@ public class UndoListener extends ButtonListener implements KeyListener {
                         }
                         break;
                     case Undo.REMOVE:
-                        l.addListElement(l.getStack().peek().input());
+                        String input = l.peek().input();
+                        DefaultListModel<String> temp = l.peek().model();
+                        l.addListElement(input);
+                        if(temp != null) {
+                            FileMap.getInstance().put(input, temp);
+                        }
                         l.pop();
                         l.setUndoCount(l.getUndoCount()-1);
                         if (!l.childInputState() && hasChild(l)) {
-                            InputList temp = l.getChildList();
-                            temp.addListElement(temp.getStack().peek().input());
-                            temp.pop();
+                            InputList tempList = l.getChildList();
+                            tempList.addListElement(tempList.peek().input());
+                            tempList.pop();
                         }
                         break;
 
