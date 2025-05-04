@@ -5,6 +5,8 @@ import listeners.Undo;
 import listeners.UndoListener;
 
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -37,17 +39,23 @@ public class InputList extends JScrollPane {
         stack = new Stack<>();
         childInput = false;
         mainList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-        this.getList()
-                .setBorder(BorderFactory.createMatteBorder(1,1,1,1, Color.lightGray));
+
+        mainList.addListSelectionListener(_ -> {
+            if(childList!=null && !childInput) {
+                childList.getList().setSelectedIndex(mainList.getSelectedIndex());
+            }
+        });
+
         mainList.setCellRenderer(getRenderer());
         this.setViewportView(mainList);
         this.setPreferredSize(dimension);
-        mainList.setFocusable(true);
+        mainList.setFocusable(false);
         mainList.addKeyListener(new UndoListener(this));
     }
 
     public void setChildList(InputList childList) {
         this.childList = childList;
+        this.childList.getList().setEnabled(false);
     }
     public InputList getChildList() {
         return childList;
@@ -151,7 +159,7 @@ public class InputList extends JScrollPane {
                                                           Object value, int index, boolean isSelected,
                                                           boolean cellHasFocus) {
                 JLabel listCellRendererComponent = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected,cellHasFocus);
-                listCellRendererComponent.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0,Color.lightGray));
+                listCellRendererComponent.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0,Color.darkGray));
                 return listCellRendererComponent;
             }
         };

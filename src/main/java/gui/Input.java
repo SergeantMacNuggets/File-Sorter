@@ -55,6 +55,7 @@ class ComboBoxInput extends Input {
 class DateInput extends Input {
     JRadioButton radioButton;
     JDateChooser textField;
+
     DateInput(String title, int x, int y) {
         radioButton = new JRadioButton(title);
         textField = new JDateChooser("MM/dd/yy","##/##/##", '_');

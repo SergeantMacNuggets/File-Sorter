@@ -1,5 +1,8 @@
 package gui;
 
+import com.formdev.flatlaf.*;
+import com.formdev.flatlaf.themes.FlatMacDarkLaf;
+import com.formdev.flatlaf.ui.FlatButtonBorder;
 import listeners.*;
 
 
@@ -22,7 +25,7 @@ public class MainWindow extends JFrame {
     private final Input sourceFolder, destFolder;
     int x = 700, y = 520;
     private MainWindow() {
-
+        FlatLaf.setup(new FlatDarkLaf());
         rightList = new InputList(new Dimension(290,280));
         leftList = new InputList(new Dimension(290,280));
         file = new ComboBoxInput(new JRadioButton("File Format"), x-150,20);
@@ -141,7 +144,6 @@ class MenuBar extends JMenuBar {
 
         return file;
     }
-
 
 
 
