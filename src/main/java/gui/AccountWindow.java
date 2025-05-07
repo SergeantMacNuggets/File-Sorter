@@ -82,6 +82,7 @@ public class AccountWindow extends JFrame {
         };
     }
 
+    //Add this
     private JPanel getSignupPanel() {
         Component[] components = {new JLabel("New Username"), newUserName = new JTextField(),
                 new JLabel("New Password"),
