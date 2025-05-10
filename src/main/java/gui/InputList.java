@@ -10,10 +10,12 @@ import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.ArrayList;
 import java.util.Stack;
 
 
 public class InputList extends JScrollPane {
+    private ArrayList<String> arrayList;
     private DefaultListModel<String> list;
     private JList<String> mainList;
     private Input[] components;
@@ -22,6 +24,7 @@ public class InputList extends JScrollPane {
     private Dimension dimension;
     private int undoCount;
     private final int undoLimit;
+    private boolean disabler;
     private Stack<Data> stack;
     private StringBuilder sb;
     private boolean childInput;
@@ -38,8 +41,11 @@ public class InputList extends JScrollPane {
         mainList = new JList<>(list);
         stack = new Stack<>();
         childInput = false;
+        disabler = false;
+        arrayList = new ArrayList<>();
         mainList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-
+        mainList.setSelectionBackground(SpecificColor.buttonColor);
+        mainList.setSelectionForeground(SpecificColor.buttonText);
         mainList.addListSelectionListener(_ -> {
             if(childList!=null && !childInput) {
                 childList.getList().setSelectedIndex(mainList.getSelectedIndex());
@@ -125,6 +131,8 @@ public class InputList extends JScrollPane {
             throw new NullPointerException();
         }
     }
+    public void hasDisabler(boolean disabler){this.disabler=disabler;}
+
 
     public void addAll(boolean state) throws NullPointerException {
         sb = new StringBuilder();
@@ -135,8 +143,9 @@ public class InputList extends JScrollPane {
         } else {
             sb.append(input.getText());
         }
+
         if(state) {
-            if(!list.contains(sb.toString()))
+            if(!arrayList.contains(sb.toString()))
                 this.addListElement(sb.toString());
             else throw new NullPointerException();
         }
@@ -149,13 +158,12 @@ public class InputList extends JScrollPane {
         return sb.toString();
     }
 
-
     public void addListElement(String word) {
-        list.addElement(word);
+        arrayList.add(word);
+        list.addElement((this.disabler) ? "[+] " + word : word);
     }
 
-
-    private ListCellRenderer<? super String> getRenderer() {
+    public ListCellRenderer<? super String> getRenderer() {
         return new DefaultListCellRenderer(){
             @Override
             public Component getListCellRendererComponent(JList<?> list,

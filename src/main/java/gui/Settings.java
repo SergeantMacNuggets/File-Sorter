@@ -1,10 +1,9 @@
 package gui;
-
-import com.formdev.flatlaf.FlatDarkLaf;
-import com.formdev.flatlaf.FlatLaf;
 import listeners.RemoveListener;
 
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -16,7 +15,6 @@ public class Settings extends JFrame {
     InputList categoryList, fileList;
     Settings() {
 
-        FlatLaf.setup(new FlatDarkLaf());
         categoryList = new InputList(new Dimension(180,100));
         fileList = new InputList(new Dimension(160,0));
         categoryText = new JTextField();
@@ -30,6 +28,7 @@ public class Settings extends JFrame {
         categoryList.getList().setFocusable(true);
         fileList.getList().setFocusable(true);
         fileList.getList().setEnabled(true);
+
         for(String key: FileMap.getInstance().keySet()) {
             categoryList.addListElement(key);
         }
@@ -98,6 +97,8 @@ public class Settings extends JFrame {
             this.setVisible(false);
         });
         cancelButton = new JButton("Cancel");
+        okButton.setForeground(SpecificColor.buttonText);
+        okButton.setBackground(SpecificColor.buttonColor);
         cancelButton.addActionListener(e->{
             this.dispose();
             this.setVisible(false);

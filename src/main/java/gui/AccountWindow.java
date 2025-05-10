@@ -1,9 +1,4 @@
 package gui;
-
-import com.formdev.flatlaf.FlatDarkLaf;
-import com.formdev.flatlaf.FlatLaf;
-
-import javax.smartcardio.Card;
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
@@ -25,7 +20,7 @@ public class AccountWindow extends JFrame {
 
     public void start() {
         running = true;
-        FlatLaf.setup(new FlatDarkLaf());
+
         leftPanel = getLeftPanel();
         rightPanel = getRightPanel();
         WindowBuilder windowBuilder = new WindowBuilder(this);

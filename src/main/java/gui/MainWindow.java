@@ -10,6 +10,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.DataInput;
 import java.io.File;
+import java.util.Collections;
 import java.util.stream.Stream;
 
 interface PanelMaker {
@@ -25,9 +26,13 @@ public class MainWindow extends JFrame {
     private final Input sourceFolder, destFolder;
     int x = 700, y = 520;
     private MainWindow() {
-        FlatLaf.setup(new FlatDarkLaf());
+
+        //	#40E0D0 Teal
+        FlatLaf.setGlobalExtraDefaults( Collections.singletonMap( "@accentColor", "#ffa31a" ) );
+        FlatMacDarkLaf.setup();
         rightList = new InputList(new Dimension(290,280));
         leftList = new InputList(new Dimension(290,280));
+        leftList.hasDisabler(true);
         file = new ComboBoxInput(new JRadioButton("File Format"), x-150,20);
         date = new DateInput("Date", x-600,25);
         sourceFolder = new ComboBoxInput(new JLabel("Source Folder"),x-375,25);
@@ -81,7 +86,10 @@ public class MainWindow extends JFrame {
         leftList.setInput(file,date,sourceFolder);
         leftList.setChildList(rightList);
         rightList.setInput(destFolder);
-        InputListListener.setOneClickListener(leftList);
+        InputListListener.setLeftDoubleClick(leftList, ()->{
+            new FileWindow(leftList.getList().getSelectedValue().toString()).start();
+        });
+        InputListListener.setRightDoubleClick(leftList, InputListListener.disabler(leftList));
         file.setListener(new ComboboxListener(file, BoxInput.FILE));
         sourceFolder.setListener(new ComboboxListener(sourceFolder,BoxInput.FOLDER));
         destFolder.setListener(new ComboboxListener(destFolder,BoxInput.FOLDER));
@@ -110,6 +118,8 @@ public class MainWindow extends JFrame {
                     .forEach(b ->
                             {
                                 b.setPreferredSize(new Dimension(80, 25));
+                                b.setForeground(SpecificColor.buttonText);
+                                b.setBackground(SpecificColor.buttonColor);
                                 e.add(setPanel(k -> k.add(b)));
                             }
                     );
