@@ -56,8 +56,10 @@ public class WindowBuilder {
             frame.setLayout(layoutManager);
         }
 
-        for(JComponent c: components)
-            frame.add(c);
+        if (components != null){
+            for (JComponent c : components)
+                frame.add(c);
+        }
 
         frame.pack();
         frame.setResizable(false);
