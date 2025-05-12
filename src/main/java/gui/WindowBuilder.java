@@ -3,8 +3,12 @@ import com.formdev.flatlaf.FlatDarculaLaf;
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLaf;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
 public class WindowBuilder {
     private JFrame frame;
@@ -44,13 +48,18 @@ public class WindowBuilder {
     }
 
     public void build() {
+        try {
+            BufferedImage logo = ImageIO.read(new File("src/main/resources/icon1.png"));
+            frame.setIconImage(
+                    new ImageIcon(logo).getImage()
+            );
+        } catch (IOException e) {
+
+        }
         frame.setDefaultCloseOperation(windowConstants);
         frame.setPreferredSize(dimension);
         frame.setTitle(title);
 
-        frame.setIconImage(
-                new ImageIcon("/src/main/resources/icon.png").getImage()
-        );
 
         if(layoutManager != null) {
             frame.setLayout(layoutManager);
