@@ -24,12 +24,12 @@ public class MainWindow extends JFrame {
     private final ComboBoxInput file;
     private final DateInput date;
     private final Input sourceFolder, destFolder;
-    int x = 700, y = 520;
+    int x = 700, y = 500;
     private MainWindow() {
 
-        //	#40E0D0 Teal
-        FlatLaf.setGlobalExtraDefaults( Collections.singletonMap( "@accentColor", "#ffa31a" ) );
-        FlatMacDarkLaf.setup();
+//        //	#40E0D0 Teal
+//        FlatLaf.setGlobalExtraDefaults( Collections.singletonMap( "@accentColor", "#ffa31a" ) );
+//        FlatMacDarkLaf.setup();
         rightList = new InputList(new Dimension(290,280));
         leftList = new InputList(new Dimension(290,280));
         leftList.hasDisabler(true);
@@ -134,12 +134,17 @@ public class MainWindow extends JFrame {
         return p;
     }
 
+    public static void clearInstance() {
+        mainWindow.setVisible(false);
+        mainWindow.dispose();
+        mainWindow = null;
+    }
 }
 
 class MenuBar extends JMenuBar {
     MenuBar() {
         JMenu[] menu = {getFileMenu(), new JMenu("Edit"),
-                new JMenu("View"), new JMenu("Account"), new JMenu("Help")
+                new JMenu("View"), getAccountMenu(), new JMenu("Help")
         ,new JMenu("About")};
 
         for(JMenu m: menu) add(m);
@@ -153,6 +158,18 @@ class MenuBar extends JMenuBar {
         for(JMenuItem i: subItem) file.add(i);
 
         return file;
+    }
+
+    private JMenu getAccountMenu() {
+        JMenu account = new JMenu("Account");
+        JMenuItem signOut = new JMenuItem("Sign Out");
+        signOut.addActionListener(_->{
+            MainWindow.clearInstance();
+            Account.clearInstance();
+            AccountWindow.getInstance().start();
+        });
+        account.add(signOut);
+        return account;
     }
 
 

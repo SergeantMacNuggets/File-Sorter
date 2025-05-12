@@ -7,32 +7,36 @@ import listeners.UndoListener;
 
 import javax.swing.*;
 
+class Button extends JButton {
+    Button() {
+        this.setEnabled(Account.getState());
+    }
+}
 
-
-class AddButton extends JButton {
+class AddButton extends Button {
     AddButton(InputList... list) {
-        this.setText("Add");
-        this.addActionListener(new AddListener(list));
+        super.setText("Add");
+        super.addActionListener(new AddListener(list));
     }
 }
 
-class RemoveButton extends JButton {
+class RemoveButton extends Button {
     RemoveButton(InputList... list) {
-        this.setText("Remove");
-        this.addActionListener(new RemoveListener(list));
+        super.setText("Remove");
+        super.addActionListener(new RemoveListener(list));
     }
 }
 
-class ClearButton extends JButton {
+class ClearButton extends Button {
     ClearButton(InputList... list) {
-        this.setText("Clear");
-        this.addActionListener(new ClearListener(list));
+        super.setText("Clear");
+        super.addActionListener(new ClearListener(list));
     }
 }
 
-class UndoButton extends JButton {
+class UndoButton extends Button {
     UndoButton(InputList... list) {
-        this.setText("Undo");
-        this.addActionListener(new UndoListener(list));
+        super.setText("Undo");
+        super.addActionListener(new UndoListener(list));
     }
 }
