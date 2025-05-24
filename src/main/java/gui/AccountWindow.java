@@ -1,20 +1,26 @@
 package gui;
 
-import com.formdev.flatlaf.FlatLaf;
-import com.formdev.flatlaf.themes.FlatMacDarkLaf;
 import net.miginfocom.swing.MigLayout;
 
 import javax.imageio.ImageIO;
-import javax.smartcardio.Card;
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
+import javax.swing.JTextField;
+import java.awt.Shape;
+import java.awt.Graphics;
+import javax.swing.JPasswordField;
+import javax.swing.JFrame;
+import javax.swing.JButton;
+import javax.swing.JPanel;
+import java.awt.Dimension;
+import javax.swing.JLabel;
+import java.awt.GridLayout;
+import java.awt.Font;
+import javax.swing.SwingConstants;
+import javax.swing.ImageIcon;
 import java.awt.event.ActionListener;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
 
 class RoundJTextField extends JTextField {
     private Shape shape;

@@ -5,8 +5,7 @@ import listeners.ClearListener;
 import listeners.RemoveListener;
 import listeners.UndoListener;
 
-import javax.swing.*;
-
+import javax.swing.JButton;
 class Button extends JButton {
     Button() {
         this.setEnabled(Account.getState());

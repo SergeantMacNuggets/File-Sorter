@@ -4,14 +4,11 @@ import gui.InputList;
 
 import java.awt.event.ActionEvent;
 
-import java.util.HashMap;
-
 public class AddListener extends ButtonListener {
     public AddListener (InputList... list) {
         this.list = list;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void actionPerformed(ActionEvent e) {
         try {
@@ -26,8 +23,7 @@ public class AddListener extends ButtonListener {
                 l.addAll(true);
                 l.push(new Data(Undo.ADD, l.getString()));
 
-                if (l.getUndoCount() < l.getUndoLimit())
-                    l.setUndoCount(l.getUndoCount() + 1);
+                l.setUndoCount(l.getUndoCount() + 1);
 
                 if (!l.childInputState() && hasChild(l)) {
                     InputList temp = l.getChildList();

@@ -3,7 +3,6 @@ package org.main;
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.themes.FlatMacDarkLaf;
 import gui.AccountWindow;
-import gui.MainWindow;
 
 import java.util.Collections;
 

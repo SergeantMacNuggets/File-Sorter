@@ -1,8 +1,9 @@
 package gui;
 
-import java.awt.*;
+import java.awt.Color;
 
 public interface SpecificColor {
-    Color buttonColor = new Color(255, 163,26);
+    // 255 163 26
+    Color buttonColor = new Color(255,163,26);
     Color buttonText = new Color(0,0,0);
 }

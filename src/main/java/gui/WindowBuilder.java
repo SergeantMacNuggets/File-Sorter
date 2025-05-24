@@ -1,11 +1,11 @@
 package gui;
-import com.formdev.flatlaf.FlatDarculaLaf;
-import com.formdev.flatlaf.FlatDarkLaf;
-import com.formdev.flatlaf.FlatLaf;
 
 import javax.imageio.ImageIO;
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JFrame;
+import javax.swing.JComponent;
+import java.awt.Dimension;
+import java.awt.LayoutManager;
+import javax.swing.ImageIcon;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;

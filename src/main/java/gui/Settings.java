@@ -1,10 +1,19 @@
 package gui;
 import listeners.RemoveListener;
 
-import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import java.awt.*;
+import javax.swing.JPanel;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JTextField;
+import javax.swing.JList;
+import javax.swing.JLabel;
+import javax.swing.SwingUtilities;
+import java.awt.Dimension;
+import javax.swing.DefaultListModel;
+import java.awt.Component;
+import java.awt.BorderLayout;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 

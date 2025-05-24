@@ -2,9 +2,11 @@ package gui;
 
 import com.toedter.calendar.JDateChooser;
 import net.miginfocom.swing.MigLayout;
-
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JPanel;
+import javax.swing.JComponent;
+import javax.swing.JComboBox;
+import java.awt.Dimension;
+import javax.swing.JRadioButton;
 import java.awt.event.ActionListener;
 
 

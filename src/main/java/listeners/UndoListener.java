@@ -3,7 +3,7 @@ package listeners;
 import gui.FileMap;
 import gui.InputList;
 
-import javax.swing.*;
+import javax.swing.DefaultListModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -30,7 +30,7 @@ public class UndoListener extends ButtonListener implements KeyListener {
                     case Undo.REMOVE:
                         String input = l.peek().input();
                         DefaultListModel<String> temp = l.peek().model();
-                        l.addListElement(input);
+                        l.getModel().addElement(input);
                         if(temp != null) {
                             FileMap.getInstance().put(input, temp);
                         }
@@ -41,9 +41,6 @@ public class UndoListener extends ButtonListener implements KeyListener {
                             tempList.addListElement(tempList.peek().input());
                             tempList.pop();
                         }
-                        break;
-
-                    default:
                         break;
                 }
             } else return;

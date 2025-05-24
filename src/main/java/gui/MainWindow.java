@@ -1,16 +1,21 @@
 package gui;
 
-import com.formdev.flatlaf.*;
-import com.formdev.flatlaf.themes.FlatMacDarkLaf;
-import com.formdev.flatlaf.ui.FlatButtonBorder;
 import listeners.*;
 
-
-import javax.swing.*;
-import java.awt.*;
-import java.io.DataInput;
-import java.io.File;
-import java.util.Collections;
+import javax.swing.JPanel;
+import javax.swing.JFrame;
+import javax.swing.JRadioButton;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JMenuBar;
+import javax.swing.JComboBox;
+import javax.swing.DefaultListModel;
+import javax.swing.JScrollPane;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import java.awt.Dimension;
+import java.awt.BorderLayout;
 import java.util.stream.Stream;
 
 interface PanelMaker {
@@ -27,9 +32,6 @@ public class MainWindow extends JFrame {
     int x = 700, y = 500;
     private MainWindow() {
 
-//        //	#40E0D0 Teal
-//        FlatLaf.setGlobalExtraDefaults( Collections.singletonMap( "@accentColor", "#ffa31a" ) );
-//        FlatMacDarkLaf.setup();
         rightList = new InputList(new Dimension(290,280));
         leftList = new InputList(new Dimension(290,280));
         leftList.hasDisabler(true);
@@ -67,10 +69,13 @@ public class MainWindow extends JFrame {
     public void updateFormat() {
         JComboBox<String> tempBox = file.getTextField();
         tempBox.removeAllItems();
+
         for(String key: FileMap.getInstance().keySet()) {
+
             DefaultListModel<String> temp = FileMap.getInstance().get(key);
-            tempBox.addItem(key);
-            for(int i=0;i<temp.getSize();i++) {
+            tempBox.addItem("Category: " + key);
+
+            for(int i=0; i < temp.getSize(); i++) {
                 tempBox.addItem(temp.get(i));
             }
         }
@@ -89,6 +94,13 @@ public class MainWindow extends JFrame {
         InputListListener.setLeftDoubleClick(leftList, ()->{
             new FileWindow(leftList.getList().getSelectedValue().toString()).start();
         });
+        rightList.getList().addListSelectionListener(_->{
+            leftList.getList().setSelectedIndex(rightList.getList().getSelectedIndex());
+        });
+        leftList.getList().addListSelectionListener(_->{
+            rightList.getList().setSelectedIndex(leftList.getList().getSelectedIndex());
+        });
+
         InputListListener.setRightDoubleClick(leftList, InputListListener.disabler(leftList));
         file.setListener(new ComboboxListener(file, BoxInput.FILE));
         sourceFolder.setListener(new ComboboxListener(sourceFolder,BoxInput.FOLDER));

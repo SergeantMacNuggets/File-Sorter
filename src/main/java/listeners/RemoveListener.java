@@ -3,7 +3,8 @@ package listeners;
 import gui.FileMap;
 import gui.InputList;
 
-import javax.swing.*;
+import javax.swing.JList;
+import javax.swing.SwingUtilities;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -28,9 +29,7 @@ public class RemoveListener extends ButtonListener implements MouseListener {
                 l.push(listData);
                 l.getModel().removeElementAt(selectedIndex);
 
-                if(l.getUndoCount() < l.getUndoLimit()) {
-                    l.setUndoCount(l.getUndoCount()+1);
-                }
+                l.setUndoCount(l.getUndoCount()+1);
 
                 if (!l.childInputState() && hasChild(l)) {
                     InputList child = l.getChildList();

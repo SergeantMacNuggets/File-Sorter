@@ -4,18 +4,22 @@ import listeners.Data;
 import listeners.Undo;
 import listeners.UndoListener;
 
-import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
+//import javax.swing.*;
+import javax.swing.JScrollPane;
+import javax.swing.DefaultListModel;
+import javax.swing.JList;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.ListCellRenderer;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
+
 import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.util.ArrayList;
 import java.util.Stack;
 
 
 public class InputList extends JScrollPane {
-    private ArrayList<String> arrayList;
     private DefaultListModel<String> list;
     private JList<String> mainList;
     private Input[] components;
@@ -23,7 +27,6 @@ public class InputList extends JScrollPane {
     private InputList childList=null;
     private Dimension dimension;
     private int undoCount;
-    private final int undoLimit;
     private boolean disabler;
     private Stack<Data> stack;
     private StringBuilder sb;
@@ -32,7 +35,6 @@ public class InputList extends JScrollPane {
 
     InputList(Dimension dimension) {
         this.dimension = dimension;
-        this.undoLimit = 5;
         this.setup();
     }
 
@@ -42,15 +44,14 @@ public class InputList extends JScrollPane {
         stack = new Stack<>();
         childInput = false;
         disabler = false;
-        arrayList = new ArrayList<>();
         mainList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
         mainList.setSelectionBackground(SpecificColor.buttonColor);
         mainList.setSelectionForeground(SpecificColor.buttonText);
-        mainList.addListSelectionListener(_ -> {
-            if(childList!=null && !childInput) {
-                childList.getList().setSelectedIndex(mainList.getSelectedIndex());
-            }
-        });
+//        mainList.addListSelectionListener(_ -> {
+//            if(childList!=null && !childInput) {
+//                childList.getList().setSelectedIndex(mainList.getSelectedIndex());
+//            }
+//        });
 
         mainList.setCellRenderer(getRenderer());
         this.setViewportView(mainList);
@@ -61,7 +62,7 @@ public class InputList extends JScrollPane {
 
     public void setChildList(InputList childList) {
         this.childList = childList;
-        this.childList.getList().setEnabled(false);
+//        this.childList.getList().setEnabled(false);
     }
     public InputList getChildList() {
         return childList;
@@ -78,10 +79,8 @@ public class InputList extends JScrollPane {
 
 
     public void setUndoCount(int undoCount) {
-        this.undoCount = undoCount;
+        this.undoCount = Math.min(undoCount, 5);
     }
-    public int getUndoLimit() {return undoLimit;}
-
     public int getUndoCount() {return undoCount;}
 
     public void push(Data data) {
@@ -145,21 +144,24 @@ public class InputList extends JScrollPane {
         }
 
         if(state) {
-            if(!arrayList.contains(sb.toString()))
-                this.addListElement(sb.toString());
+            if(!list.contains("[+] " + sb.toString())) {
+                if(!list.contains("[-] " + sb.toString()))
+                    this.addListElement(sb.toString());
+                else throw new NullPointerException();
+            }
             else throw new NullPointerException();
         }
-        else this.addListElement(sb.toString());
+        else {
+            this.addListElement(sb.toString());
+        }
 
     }
 
-
     public String getString() {
-        return sb.toString();
+        return (this.disabler) ? "[+] "  + sb.toString() : sb.toString();
     }
 
     public void addListElement(String word) {
-        arrayList.add(word);
         list.addElement((this.disabler) ? "[+] " + word : word);
     }
 

@@ -2,11 +2,12 @@ package listeners;
 
 import gui.*;
 
-import javax.swing.*;
+import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Objects;
-import java.util.Set;
+
 
 public class ComboboxListener implements ActionListener {
     BoxInput b;
