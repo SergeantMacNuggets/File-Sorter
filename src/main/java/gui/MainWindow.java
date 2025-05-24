@@ -35,10 +35,14 @@ public class MainWindow extends JFrame {
         rightList = new InputList(new Dimension(290,280));
         leftList = new InputList(new Dimension(290,280));
         leftList.hasDisabler(true);
-        file = new ComboBoxInput(new JRadioButton("File Format"), x-150,20);
-        date = new DateInput("Date", x-600,25);
-        sourceFolder = new ComboBoxInput(new JLabel("Source Folder"),x-375,25);
-        destFolder = new ComboBoxInput(new JLabel("Destination Folder"),x-375,25);
+        file = new ComboBoxInput(new JRadioButton("File Format"), x-150,20)
+            {{this.setToolTip("Input your chosen file format here");}};
+        date = new DateInput("Date", x-600,25)
+            {{this.setToolTip("Input your chosen file with date when it was modified");}};
+        sourceFolder = new ComboBoxInput(new JLabel("Source Folder"),x-375,25)
+            {{this.setToolTip("Input the URL Directory from where would you send your files");}};
+        destFolder = new ComboBoxInput(new JLabel("Destination Folder"),x-375,25)
+            {{this.setToolTip("Input the URL Directory to where would you send your files");}};
         new WindowBuilder(this)
                 .setDimension(x,y)
                 .setTitle("Automatic File Sorter")
@@ -124,9 +128,11 @@ public class MainWindow extends JFrame {
             e.setPreferredSize(new Dimension(100,280));
             e.setLayout(new BoxLayout(e, BoxLayout.Y_AXIS));
 
-            Stream.of(new AddButton(leftList),new RemoveButton(leftList),
-                            new ClearButton(leftList), new UndoButton(leftList),
-                            new JButton("Run"))
+            Stream.of(      new AddButton(leftList)     {{this.setToolTipText("Add Your Configuration");}},
+                            new RemoveButton(leftList)  {{this.setToolTipText("Remove Your Configuration");}},
+                            new ClearButton(leftList)   {{this.setToolTipText("Delete All Your Configurations");}},
+                            new UndoButton(leftList)    {{this.setToolTipText("Add or Remove Your Previous Configuration");}},
+                            new JButton("Run")          {{this.setToolTipText("Start Sorting");}})
                     .forEach(b ->
                             {
                                 b.setPreferredSize(new Dimension(80, 25));

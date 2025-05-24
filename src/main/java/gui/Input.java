@@ -14,6 +14,7 @@ public abstract class Input extends JPanel {
     public abstract String getInput() throws NullPointerException;
     public abstract void setListener(ActionListener e);
     public abstract JComponent getTextField();
+    public abstract void setToolTip(String s);
 }
 
 class ComboBoxInput extends Input {
@@ -44,6 +45,12 @@ class ComboBoxInput extends Input {
     public JComboBox<String> getTextField() {
         return textField;
     }
+
+    @Override
+    public void setToolTip(String s) {
+        textField.setToolTipText(s);
+    }
+
     @Override
     public String getInput() throws NullPointerException{
         if(textField.getSelectedItem().toString().isEmpty() && textField.isEditable()) {
@@ -87,5 +94,10 @@ class DateInput extends Input {
     @Override
     public JComponent getTextField() {
         return textField;
+    }
+
+    @Override
+    public void setToolTip(String s) {
+        textField.setToolTipText(s);
     }
 }

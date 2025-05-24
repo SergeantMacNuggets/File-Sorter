@@ -9,6 +9,7 @@ import java.util.Collections;
 
 public class Run {
     public static void main(String[] args) {
+//        #ffa31a - Orange
         FlatLaf.setGlobalExtraDefaults( Collections.singletonMap( "@accentColor", "#ffa31a" ) );
         FlatMacDarkLaf.setup();
         AccountWindow.getInstance().start();
