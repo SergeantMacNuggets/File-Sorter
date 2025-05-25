@@ -8,6 +8,8 @@ import javax.swing.JComboBox;
 import java.awt.Dimension;
 import javax.swing.JRadioButton;
 import java.awt.event.ActionListener;
+import java.lang.reflect.Array;
+import java.util.Arrays;
 
 
 public abstract class Input extends JPanel {
@@ -62,6 +64,7 @@ class ComboBoxInput extends Input {
 }
 
 class DateInput extends Input {
+
     JRadioButton radioButton;
     JDateChooser textField;
 
@@ -79,11 +82,33 @@ class DateInput extends Input {
         this.add(textField);
     }
 
+    private String monthToNum(String month) {
+        return switch(month) {
+            case "Jan" -> "01";
+            case "Feb" -> "02";
+            case "Mar" -> "03";
+            case "Apr" -> "04";
+            case "May" -> "05";
+            case "Jun" -> "06";
+            case "Jul" -> "07";
+            case "Aug" -> "08";
+            case "Sep" -> "09";
+            case "Oct" -> "10";
+            case "Nov" -> "11";
+            case "Dec" -> "12";
+            default -> throw new IllegalStateException("Unexpected value: " + month);
+        };
+    }
+
     @Override
     public String getInput() throws NullPointerException {
+
         if(textField.getDateFormatString().isEmpty() && textField.isEnabled())
             throw new NullPointerException();
-        return (textField.isEnabled()) ? textField.getDate().toString() : "";
+
+        String[] output = textField.getDate().toString().split(" ");
+
+        return (textField.isEnabled()) ? String.format("%s/%s/%s", monthToNum(output[1]), output[2], output[output.length-1]) : "";
     }
 
     @Override
