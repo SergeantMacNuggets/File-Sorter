@@ -1,5 +1,7 @@
 package gui;
 
+import org.mindrot.jbcrypt.BCrypt;
+
 enum AccountType {
     ADMIN,
     GUEST
@@ -8,6 +10,9 @@ enum AccountType {
 public abstract class Account {
     protected static Account account = null;
     public abstract boolean isEqual(String user, String pass);
+    public abstract void changePassword(String newPass);
+    protected String username = "user";
+    protected String password = BCrypt.hashpw("user", BCrypt.gensalt());
 
     static Account getInstance() {
         return account;
@@ -30,12 +35,14 @@ abstract class AccountFactory {
 }
 
 class Admin extends Account {
-    String username = "user";
-    String password = "user";
     private Admin() {}
 
     public boolean isEqual(String user, String pass) {
-        return (username.equals(user) && password.equals(pass));
+        return (username.equals(user) && BCrypt.checkpw(pass, password));
+    }
+
+    public void changePassword(String newPass) {
+        super.password = BCrypt.hashpw(newPass, BCrypt.gensalt());
     }
 
     static Account getInstance() {
@@ -49,6 +56,11 @@ class Guest extends Account {
     @Override
     public boolean isEqual(String user, String pass) {
         return false;
+    }
+
+    @Override
+    public void changePassword(String newPass) {
+
     }
 
     static Account getInstance() {

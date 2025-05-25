@@ -8,8 +8,6 @@ import javax.swing.JComboBox;
 import java.awt.Dimension;
 import javax.swing.JRadioButton;
 import java.awt.event.ActionListener;
-import java.lang.reflect.Array;
-import java.util.Arrays;
 
 
 public abstract class Input extends JPanel {

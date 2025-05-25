@@ -12,7 +12,6 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import java.awt.Dimension;
 import javax.swing.JLabel;
-import java.awt.GridLayout;
 import java.awt.Font;
 import javax.swing.SwingConstants;
 import javax.swing.ImageIcon;
@@ -78,7 +77,7 @@ class RoundJPasswordField extends JPasswordField {
 
 public class AccountWindow extends JFrame {
     private static AccountWindow accountWindow;
-    private JTextField username, password;
+    private JTextField username, password, newPassField;
     private JButton submit, guestIn, changePass;
     private JPanel mainPanel, currentPanel;
     private boolean panelState;
@@ -148,13 +147,6 @@ public class AccountWindow extends JFrame {
         };
     }
 
-    private JPanel southButton() {
-        JPanel p = new JPanel(new GridLayout(1,2,20,0));
-        p.add(changePass);
-        p.add(guestIn);
-        return p;
-    }
-
     public JPanel loginPanel() {
         JPanel p = new JPanel();
         changePass.setText("Forgot Password");
@@ -180,6 +172,7 @@ public class AccountWindow extends JFrame {
     public JPanel signupPanel() {
         JPanel p = new JPanel();
         password = new RoundJPasswordField(12);
+        newPassField = new RoundJPasswordField(12);
         changePass.setText("<- Go Back");
         submit.setFont(new Font("Impact", Font.BOLD, 15));
         submit.setPreferredSize(new Dimension(45,40));
@@ -187,6 +180,7 @@ public class AccountWindow extends JFrame {
         submit.setForeground(SpecificColor.buttonText);
         username.setPreferredSize(new Dimension(350,40));
         password.setPreferredSize(new Dimension(150,40));
+        newPassField.setPreferredSize(new Dimension(150,40));
         p.setLayout(new MigLayout());
         p.add(new JLabel("Username"){{setFont(new Font("Impact", Font.PLAIN, 16));}},"wrap");
         p.add(username,"wrap 15");
@@ -194,9 +188,7 @@ public class AccountWindow extends JFrame {
         p.add(new JLabel("New Password"){{setFont(new Font("Impact", Font.PLAIN, 14));}}, "gapleft 75");
         p.add(new JLabel(),"wrap");
         p.add(password, "split 3");
-        p.add(new RoundJPasswordField(12){{
-            setPreferredSize(new Dimension(150,40));
-        }});
+        p.add(newPassField);
         p.add(submit,"wrap 20");
         p.add(changePass, "split 2");
         p.add(guestIn, "gapleft 120");
@@ -205,10 +197,17 @@ public class AccountWindow extends JFrame {
 
     private ActionListener submitListener() {
         return _ -> {
+            boolean loginButtonState = AccountFactory.getAccount(AccountType.ADMIN).isEqual(username.getText(),password.getText());
             if(!panelState) {
-                panelSwitcher(loginPanel());
-                panelState = !panelState;
-            } else if(AccountFactory.getAccount(AccountType.ADMIN).isEqual(username.getText(),password.getText())) {
+                if(loginButtonState) {
+                    AccountFactory.getAccount(AccountType.ADMIN).changePassword(newPassField.getText());
+                    panelSwitcher(loginPanel());
+                    panelState = !panelState;
+                }
+                else {
+                    System.out.println("Does not match!");
+                }
+            } else if(loginButtonState) {
                 MainWindow.getInstance().start();
                 AccountFactory.getAccount(AccountType.ADMIN);
                 this.dispose();
