@@ -12,6 +12,8 @@ public class Run {
 //        #ffa31a - Orange
         FlatLaf.setGlobalExtraDefaults( Collections.singletonMap( "@accentColor", "#ffa31a" ) );
         FlatMacDarkLaf.setup();
+
+
         AccountWindow.getInstance().start();
     }
 }
