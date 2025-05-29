@@ -1,10 +1,8 @@
 package gui;
 
 import listeners.Data;
-import listeners.Undo;
 import listeners.UndoListener;
 
-//import javax.swing.*;
 import javax.swing.JScrollPane;
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
@@ -15,7 +13,9 @@ import javax.swing.DefaultListCellRenderer;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Component;
+import java.awt.Color;
 import java.util.Stack;
 
 
@@ -47,11 +47,6 @@ public class InputList extends JScrollPane {
         mainList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
         mainList.setSelectionBackground(SpecificColor.buttonColor);
         mainList.setSelectionForeground(SpecificColor.buttonText);
-//        mainList.addListSelectionListener(_ -> {
-//            if(childList!=null && !childInput) {
-//                childList.getList().setSelectedIndex(mainList.getSelectedIndex());
-//            }
-//        });
 
         mainList.setCellRenderer(getRenderer());
         this.setViewportView(mainList);
@@ -62,8 +57,8 @@ public class InputList extends JScrollPane {
 
     public void setChildList(InputList childList) {
         this.childList = childList;
-//        this.childList.getList().setEnabled(false);
     }
+
     public InputList getChildList() {
         return childList;
     }
@@ -116,28 +111,14 @@ public class InputList extends JScrollPane {
         this.list = model;
     }
 
-    public void check() throws NullPointerException {
-        try {
-            if (components != null){
-                for (Input c : this.getInput()) {
-                    c.getInput();
-                }
-            } else {
-                if(input.getText().isBlank())
-                    throw new NullPointerException();
-            }
-        } catch (NullPointerException e) {
-            throw new NullPointerException();
-        }
-    }
     public void hasDisabler(boolean disabler){this.disabler=disabler;}
-
 
     public void addAll(boolean state) throws NullPointerException {
         sb = new StringBuilder();
-        if (components != null){
-            for (Input x : this.getInput()) {
-                sb.append(x.getInput()).append(" ");
+        if (components != null) {
+            for (Input x : this.components) {
+                if(x.isEnabled())
+                    sb.append(x.getInput()).append(" ");
             }
         } else {
             sb.append(input.getText());

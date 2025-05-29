@@ -15,6 +15,7 @@ public abstract class Input extends JPanel {
     public abstract void setListener(ActionListener e);
     public abstract JComponent getTextField();
     public abstract void setToolTip(String s);
+    public abstract boolean isEnabled();
 }
 
 class ComboBoxInput extends Input {
@@ -52,8 +53,13 @@ class ComboBoxInput extends Input {
     }
 
     @Override
+    public boolean isEnabled() {
+        return textField.isEnabled();
+    }
+
+
     public String getInput() throws NullPointerException{
-        if(textField.getSelectedItem().toString().isEmpty() && textField.isEditable()) {
+        if(textField.getSelectedItem().toString().isEmpty()) {
             throw new NullPointerException();
         }
         return textField.getSelectedItem().toString();
@@ -98,11 +104,7 @@ class DateInput extends Input {
         };
     }
 
-    @Override
-    public String getInput() throws NullPointerException {
-
-        if(textField.getDateFormatString().isEmpty() && textField.isEnabled())
-            throw new NullPointerException();
+    public String getInput() throws NullPointerException{
 
         String[] output = textField.getDate().toString().split(" ");
 
@@ -122,5 +124,10 @@ class DateInput extends Input {
     @Override
     public void setToolTip(String s) {
         textField.setToolTipText(s);
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return textField.isEnabled();
     }
 }

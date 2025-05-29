@@ -12,12 +12,6 @@ public class AddListener extends ButtonListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         try {
-            for (InputList l : list) {
-                l.check();
-                if(!l.childInputState() && hasChild(l)) {
-                    l.getChildList().check();
-                }
-            }
 
             for (InputList l : list) {
                 l.addAll(true);
