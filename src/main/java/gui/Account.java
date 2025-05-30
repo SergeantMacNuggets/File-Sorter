@@ -12,7 +12,7 @@ public abstract class Account {
     public abstract boolean isEqual(String user, String pass);
     public abstract void changePassword(String newPass);
     protected String username = "user";
-    protected String password = BCrypt.hashpw("user", BCrypt.gensalt());
+    protected String password = BCrypt.hashpw("user", BCrypt.gensalt(12));
 
     static Account getInstance() {
         return account;

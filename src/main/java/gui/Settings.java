@@ -19,9 +19,12 @@ import java.awt.event.MouseEvent;
 
 public class Settings extends JFrame {
     private static Settings settings;
-    JButton categoryButton, fileButton, okButton, cancelButton;
-    JTextField categoryText, fileText;
-    InputList categoryList, fileList;
+    private final JButton categoryButton;
+    private final JButton fileButton;
+    private final JTextField categoryText;
+    private final JTextField fileText;
+    private final InputList categoryList;
+    private final InputList fileList;
     Settings() {
 
         categoryList = new InputList(new Dimension(180,100));
@@ -99,13 +102,13 @@ public class Settings extends JFrame {
 
     private JPanel getSouthPanel() {
         JPanel south =  new JPanel();
-        okButton = new JButton("Ok");
+        JButton okButton = new JButton("Ok");
         okButton.addActionListener(_->{
             MainWindow.getInstance().updateFormat();
             this.dispose();
             this.setVisible(false);
         });
-        cancelButton = new JButton("Cancel");
+        JButton cancelButton = new JButton("Cancel");
         okButton.setForeground(SpecificColor.buttonText);
         okButton.setBackground(SpecificColor.buttonColor);
         cancelButton.addActionListener(e->{

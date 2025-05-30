@@ -9,12 +9,16 @@ import java.awt.Graphics;
 import javax.swing.JPasswordField;
 import javax.swing.JFrame;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JPanel;
 import java.awt.Dimension;
 import javax.swing.JLabel;
 import java.awt.Font;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import javax.swing.SwingConstants;
 import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
 import java.awt.event.ActionListener;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
@@ -75,16 +79,18 @@ class RoundJPasswordField extends JPasswordField {
     }
 }
 
-public class AccountWindow extends JFrame {
+public class AccountWindow extends JDialog {
     private static AccountWindow accountWindow;
+    private JFrame parentFrame;
     private JTextField username, password, newPassField;
     private JButton submit, guestIn, changePass;
     private JPanel mainPanel, currentPanel;
     private boolean panelState;
-    AccountWindow() {
+    private AccountWindow(JFrame parentFrame) {
         submit = new JButton(">");
         guestIn = new JButton("Enter as Guest");
         changePass = new JButton();
+        this.parentFrame = parentFrame;
         changePass.setMaximumSize(new Dimension(120,30));
         changePass.setMinimumSize(new Dimension(120,30));
         guestIn.setMaximumSize(new Dimension(120,30));
@@ -93,19 +99,47 @@ public class AccountWindow extends JFrame {
         panelState = true;
         currentPanel = loginPanel();
         setup();
-        new WindowBuilder(this)
-                .setDimension(600,350)
-                .setWindowConstants(JFrame.EXIT_ON_CLOSE)
-                .setComponents(mainPanel)
-                .setTitle("Login")
-                .build();
+        this.setPreferredSize(new Dimension(600,350));
+        this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        try {
+            BufferedImage logo = ImageIO.read(new File("src/main/resources/icon1.png"));
+            this.setIconImage(
+                    new ImageIcon(logo).getImage()
+            );
+        } catch (IOException e) {
+        }this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                System.exit(0);
+            }
+        });
+
+        this.setResizable(false);
+        this.setTitle("Login");
+        this.add(mainPanel);
+        this.pack();
+        this.setLocationRelativeTo(null);
+        this.setModal(true);
+        this.setVisible(true);
+//        new WindowBuilder(this)
+//                .setDimension(600,350)
+//                .setWindowConstants(JFrame.EXIT_ON_CLOSE)
+//                .setComponents(mainPanel)
+//                .setTitle("Login")
+//                .build();
     }
 
-    public static AccountWindow getInstance() {
+    public static AccountWindow getInstance(JFrame parentFrame) {
         if(accountWindow == null) {
-            accountWindow = new AccountWindow();
+            accountWindow = new AccountWindow(parentFrame);
         }
         return accountWindow;
+    }
+
+    public static void clearInstance() {
+        accountWindow.setVisible(false);
+        accountWindow.dispose();
+        accountWindow = null;
     }
 
     public void setup() {
@@ -204,29 +238,24 @@ public class AccountWindow extends JFrame {
                     panelSwitcher(loginPanel());
                     panelState = !panelState;
                 }
-                else {
-                    System.out.println("Does not match!");
-                }
             } else if(loginButtonState) {
-                MainWindow.getInstance().start();
                 AccountFactory.getAccount(AccountType.ADMIN);
-                this.dispose();
+                parentFrame.setVisible(true);
                 this.setVisible(false);
+            }
+            else {
+                JOptionPane.showMessageDialog(null, "Wrong Username or Password");
             }
         };
     }
 
     private ActionListener guestListener() {
         return _->{
-            MainWindow.getInstance().start();
             AccountFactory.getAccount(AccountType.GUEST);
-            this.dispose();
+            parentFrame.setVisible(true);
             this.setVisible(false);
         };
     }
 
-    public void start() {
-        this.setVisible(true);
-    }
 }
 

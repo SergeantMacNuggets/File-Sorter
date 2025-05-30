@@ -1,5 +1,6 @@
 package gui;
 
+import com.sun.tools.javac.Main;
 import listeners.*;
 
 import javax.swing.JPanel;
@@ -32,17 +33,23 @@ public class MainWindow extends JFrame {
     int x = 700, y = 500;
     private MainWindow() {
 
+        AccountWindow.getInstance(this);
         rightList = new InputList(new Dimension(290,280));
         leftList = new InputList(new Dimension(290,280));
         leftList.hasDisabler(true);
+
         file = new ComboBoxInput(new JRadioButton("File Format"), x-150,20)
             {{this.setToolTip("Input your chosen file format here");}};
+
         date = new DateInput("Date", x-600,25)
             {{this.setToolTip("Input your chosen file with date when it was modified");}};
+
         sourceFolder = new ComboBoxInput(new JLabel("Source Folder"),x-375,25)
             {{this.setToolTip("Input the URL Directory from where would you send your files");}};
+
         destFolder = new ComboBoxInput(new JLabel("Destination Folder"),x-375,25)
             {{this.setToolTip("Input the URL Directory to where would you send your files");}};
+
         new WindowBuilder(this)
                 .setDimension(x,y)
                 .setTitle("Automatic File Sorter")
@@ -50,11 +57,8 @@ public class MainWindow extends JFrame {
                 .setWindowConstants(JFrame.EXIT_ON_CLOSE)
                 .setComponents(mainPanel())
                 .build();
-
+        this.setJMenuBar(new MenuBar(this));
         this.updateFormat();
-        this.setJMenuBar(new MenuBar());
-    }
-    public void start() {
         this.setVisible(true);
     }
 
@@ -106,9 +110,13 @@ public class MainWindow extends JFrame {
         });
 
         InputListListener.setRightDoubleClick(leftList, InputListListener.disabler(leftList));
+
         file.setListener(new ComboboxListener(file, BoxInput.FILE));
+
         sourceFolder.setListener(new ComboboxListener(sourceFolder,BoxInput.FOLDER));
+
         destFolder.setListener(new ComboboxListener(destFolder,BoxInput.FOLDER));
+
         p.add(setPanel(e -> {
 
             e.setPreferredSize(new Dimension(x,140));
@@ -132,7 +140,7 @@ public class MainWindow extends JFrame {
                             new RemoveButton(leftList)  {{this.setToolTipText("Remove Your Configuration");}},
                             new ClearButton(leftList)   {{this.setToolTipText("Delete All Your Configurations");}},
                             new UndoButton(leftList)    {{this.setToolTipText("Add or Remove Your Previous Configuration");}},
-                            new JButton("Run")          {{this.setToolTipText("Start Sorting");}})
+                            new JButton("Run")     {{this.setToolTipText("Start Sorting");}})
                     .forEach(b ->
                             {
                                 b.setPreferredSize(new Dimension(80, 25));
@@ -157,10 +165,13 @@ public class MainWindow extends JFrame {
         mainWindow.dispose();
         mainWindow = null;
     }
+
 }
 
 class MenuBar extends JMenuBar {
-    MenuBar() {
+    private MainWindow parentFrame;
+    MenuBar(MainWindow parentFrame) {
+        this.parentFrame = parentFrame;
         JMenu[] menu = {getFileMenu(), new JMenu("Edit"),
                 new JMenu("View"), getAccountMenu(), new JMenu("Help")
         ,new JMenu("About")};
@@ -182,9 +193,10 @@ class MenuBar extends JMenuBar {
         JMenu account = new JMenu("Account");
         JMenuItem signOut = new JMenuItem("Sign Out");
         signOut.addActionListener(_->{
-            MainWindow.clearInstance();
             Account.clearInstance();
-            AccountWindow.getInstance().start();
+            AccountWindow.clearInstance();
+            MainWindow.clearInstance();
+            MainWindow.getInstance();
         });
         account.add(signOut);
         return account;
