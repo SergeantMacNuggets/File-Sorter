@@ -1,9 +1,7 @@
 package gui;
 
-//import java.awt.*;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-//import java.awt.print.*;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
@@ -29,18 +27,20 @@ public class Printer implements Printable {
 
 
     public void printImmediately() {
-        PrinterJob job = PrinterJob.getPrinterJob();
-        job.setPrintable(this);
+        new Thread(() -> {
+            PrinterJob job = PrinterJob.getPrinterJob();
+            job.setPrintable(this);
 
-        boolean doPrint = job.printDialog();
-        if (doPrint) {
-            try {
-                job.print();
-            } catch (PrinterException exc) {
-                System.out.println("Printing Error: " + exc.getMessage());
+            boolean doPrint = job.printDialog();
+            if (doPrint) {
+                try {
+                    job.print();
+                } catch (PrinterException exc) {
+                    System.out.println("Printing Error: " + exc.getMessage());
+                }
+            } else {
+                System.out.println("You cancelled the print.");
             }
-        } else {
-            System.out.println("You cancelled the print.");
-        }
+        }).start();
     }
 }

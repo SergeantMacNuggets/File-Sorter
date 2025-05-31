@@ -182,7 +182,7 @@ class MenuBar extends JMenuBar {
     private JMenu getFileMenu() {
         JMenu file = new JMenu("File");
         JMenuItem[] subItem = {new JMenuItem("Printer"), new JMenuItem("Quit")};
-//        subItem[0].addActionListener(_->new Printer());
+        subItem[0].addActionListener(_->new Printer());
         subItem[1].addActionListener(_ -> System.exit(0));
         for(JMenuItem i: subItem) file.add(i);
 
