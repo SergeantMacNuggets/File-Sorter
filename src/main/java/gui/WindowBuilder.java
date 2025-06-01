@@ -49,7 +49,8 @@ public class WindowBuilder {
 
     public void build() {
         try {
-            BufferedImage logo = ImageIO.read(new File("src/main/resources/icon1.png"));
+            BufferedImage logo = ImageIO.read(this.getClass().getResourceAsStream("/icon1.png"));
+
             frame.setIconImage(
                     new ImageIcon(logo).getImage()
             );
@@ -60,14 +61,14 @@ public class WindowBuilder {
         frame.setPreferredSize(dimension);
         frame.setTitle(title);
 
+        if (components != null){
+            for (JComponent c : components)
+                frame.getContentPane().add(c);
+        }
+
 
         if(layoutManager != null) {
             frame.setLayout(layoutManager);
-        }
-
-        if (components != null){
-            for (JComponent c : components)
-                frame.add(c);
         }
 
         frame.pack();

@@ -22,7 +22,6 @@ import javax.swing.JOptionPane;
 import java.awt.event.ActionListener;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 
 class RoundJTextField extends JTextField {
@@ -101,8 +100,10 @@ public class AccountWindow extends JDialog {
         setup();
         this.setPreferredSize(new Dimension(600,350));
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        this.getContentPane().add(mainPanel);
         try {
-            BufferedImage logo = ImageIO.read(new File("src/main/resources/icon1.png"));
+            BufferedImage logo = ImageIO.read(this.getClass().getResourceAsStream("/icon1.png"));
+
             this.setIconImage(
                     new ImageIcon(logo).getImage()
             );
@@ -116,17 +117,10 @@ public class AccountWindow extends JDialog {
 
         this.setResizable(false);
         this.setTitle("Login");
-        this.add(mainPanel);
         this.pack();
         this.setLocationRelativeTo(null);
         this.setModal(true);
         this.setVisible(true);
-//        new WindowBuilder(this)
-//                .setDimension(600,350)
-//                .setWindowConstants(JFrame.EXIT_ON_CLOSE)
-//                .setComponents(mainPanel)
-//                .setTitle("Login")
-//                .build();
     }
 
     public static AccountWindow getInstance(JFrame parentFrame) {
@@ -146,7 +140,7 @@ public class AccountWindow extends JDialog {
         JLabel l = new JLabel("File Sorter", SwingConstants.CENTER);
         mainPanel = new JPanel();
         try {
-            BufferedImage logo = ImageIO.read(new File("src/main/resources/profile.png"));
+            BufferedImage logo = ImageIO.read(this.getClass().getResourceAsStream("/profile.png"));
             JLabel picLabel = new JLabel(new ImageIcon(logo));
             changePass.addActionListener(changePanel());
             submit.addActionListener(submitListener());
