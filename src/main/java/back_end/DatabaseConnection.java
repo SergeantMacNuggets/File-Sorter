@@ -15,20 +15,24 @@ import java.io.IOException;
 import java.io.FileWriter;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Connection;
 
 public abstract class DatabaseConnection {
     private static final JSONObject jsonObject = new JSONObject();
-    private static String username;
-    private static String password;
-
+    private static Connection connection;
+    private static String hostname;
     public static void run () {
         try {
             FileReader fileReader = new FileReader("mySQL_Info.json");
             Object parse = new JSONParser().parse(fileReader);
             JSONObject jb = (JSONObject) parse;
-            checkConnection((String) jb.get("user"),(String) jb.get("password"));
-            username = (String) jb.get("user");
-            password = (String) jb.get("password");
+
+            checkConnection((String) jb.get("hostname"),
+                            (String) jb.get("user"),
+                            (String) jb.get("password"));
+
+            hostname = (String) jb.get(hostname);
+
         } catch (FileNotFoundException e) {
             write();
             run();
@@ -39,38 +43,41 @@ public abstract class DatabaseConnection {
         }
     }
 
-    public static String getUser() {return username;}
-    public static String getPassword() {return password;}
+    public static Connection getConnection() {
+        return connection;
+    }
 
     @SuppressWarnings("unchecked")
     public static void write() {
         try {
-            String user = OptionPane(new JTextField(10));
-            String password = OptionPane(new JPasswordField(10));
+            String hostname = OptionPane(new JTextField(10), "Hostname");
+            String user = OptionPane(new JTextField(10), "Username");
+            String password = OptionPane(new JPasswordField(10), "Password");
+            jsonObject.put("hostname", hostname);
             jsonObject.put("user",user);
             jsonObject.put("password",password);
-            checkConnection(user,password);
+            checkConnection(hostname, user, password);
             FileWriter fileWriter = new FileWriter("mySQL_Info.json");
             fileWriter.write(jsonObject.toString());
             fileWriter.close();
         } catch (IOException e) {
-            write();
+            JOptionPane.showMessageDialog(null, "Database host connection failed!");
+            System.exit(0);
         }
     }
 
-    private static void checkConnection(String username, String password) throws IOException{
+    private static void checkConnection(String hostname, String username, String password) throws IOException{
         try {
-            DriverManager.getConnection("jdbc:mysql://localhost:3306", username,password);
+            connection = DriverManager.getConnection(String.format("jdbc:mysql://%s",hostname), username,password);
         } catch (SQLException e) {
             throw new IOException(e);
         }
     }
 
-    private static String OptionPane(JTextField textField) {
+    private static String OptionPane(JTextField textField, String opt) {
         String[] options = {"OK"};
         JPanel panel = new JPanel();
-        String labelInstance = (textField instanceof JPasswordField) ? "Password" : "Username";
-        JLabel lbl = new JLabel(String.format("Enter Your MySQL %s:", labelInstance));
+        JLabel lbl = new JLabel(String.format("Enter Your MySQL %s:\n", opt));
         JTextField txt = textField;
         panel.add(lbl);
         panel.add(txt);

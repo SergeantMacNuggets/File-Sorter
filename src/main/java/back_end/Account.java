@@ -3,7 +3,7 @@ package back_end;
 public abstract class Account {
     protected static Account account = null;
 
-    protected PasswordService databaseService = new PasswordService("userlogin", "user");
+    protected PasswordService databaseService = new PasswordService("userlogin", "user") {{addUser("admin","admin");}};
 
     public static Account getInstance() {return account;}
 
@@ -11,7 +11,7 @@ public abstract class Account {
 
     public static boolean getState() {return account instanceof Admin;}
 
-    public void changePassword(String password) {databaseService.changePassword("user", password);}
+    public void changePassword(String username,String password) {databaseService.changePassword(username, password);}
 
     public boolean isEqual(String user, String pass) {return databaseService.authorize(user,pass);}
 }

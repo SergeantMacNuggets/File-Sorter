@@ -1,6 +1,7 @@
 package gui;
 
 import back_end.AccountFactory;
+import back_end.DatabaseConnection;
 import net.miginfocom.swing.MigLayout;
 import back_end.AccountType;
 import javax.imageio.ImageIO;
@@ -24,6 +25,7 @@ import java.awt.event.ActionListener;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.Objects;
 
 class RoundJTextField extends JTextField {
     private Shape shape;
@@ -81,12 +83,16 @@ class RoundJPasswordField extends JPasswordField {
 
 public class AccountWindow extends JDialog {
     private static AccountWindow accountWindow;
-    private JFrame parentFrame;
-    private JTextField username, password, newPassField;
+    private final JFrame parentFrame;
+    private final JTextField username;
+    private JTextField password;
+    private JTextField newPassField;
     private JButton submit, guestIn, changePass;
     private JPanel mainPanel, currentPanel;
     private boolean panelState;
     private AccountWindow(JFrame parentFrame) {
+        super(null, java.awt.Dialog.ModalityType.TOOLKIT_MODAL);
+        DatabaseConnection.run();
         submit = new JButton(">");
         guestIn = new JButton("Enter as Guest");
         changePass = new JButton();
@@ -141,7 +147,7 @@ public class AccountWindow extends JDialog {
         JLabel l = new JLabel("File Sorter", SwingConstants.CENTER);
         mainPanel = new JPanel();
         try {
-            BufferedImage logo = ImageIO.read(this.getClass().getResourceAsStream("/profile.png"));
+            BufferedImage logo = ImageIO.read(Objects.requireNonNull(this.getClass().getResourceAsStream("/profile.png" )));
             JLabel picLabel = new JLabel(new ImageIcon(logo));
             changePass.addActionListener(changePanel());
             submit.addActionListener(submitListener());
@@ -229,7 +235,7 @@ public class AccountWindow extends JDialog {
             boolean loginButtonState = AccountFactory.getAccount(AccountType.ADMIN).isEqual(username.getText(),password.getText());
             if(!panelState) {
                 if(loginButtonState) {
-                    AccountFactory.getAccount(AccountType.ADMIN).changePassword(newPassField.getText());
+                    AccountFactory.getAccount(AccountType.ADMIN).changePassword(username.getText(),newPassField.getText());
                     panelSwitcher(loginPanel());
                     panelState = !panelState;
                 }

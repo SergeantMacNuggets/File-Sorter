@@ -4,10 +4,7 @@ import org.mindrot.jbcrypt.BCrypt;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.sql.ResultSet;
-import java.sql.DriverManager;
 import java.sql.SQLException;
-
-
 
 public class DatabaseService {
     protected Connection connection;
@@ -15,14 +12,19 @@ public class DatabaseService {
     protected ResultSet resultSet;
 
     public DatabaseService(String schemaName, String tableName) {
-        try {
-            this.connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/"+schemaName,
-                    DatabaseConnection.getUser(), DatabaseConnection.getPassword());
-            this.statement = connection.createStatement();
-            this.resultSet = statement.executeQuery("select * from " + tableName);
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        String query = "USE " + schemaName;
+        while (true) {
+            try {
+                this.connection = DatabaseConnection.getConnection();
+                this.statement = connection.createStatement();
+                statement.execute(query);
+                statement.execute("USE " + schemaName);
+                break;
+            } catch (SQLException e) {
+                query = "CREATE DATABASE " + schemaName;
+            } catch(NullPointerException e) {
+                DatabaseConnection.run();
+            }
         }
     }
 
@@ -31,14 +33,29 @@ public class DatabaseService {
         statement.close();
         connection.close();
     }
+    protected void createTable(Statement s, String table, String[] columns){
+        String query = String.format("CREATE TABLE %s (",table);
+        StringBuilder sb = new StringBuilder(query);
+        try {
+            for (String column : columns) {
+                sb.append((column.equals(columns[columns.length - 1])) ? column : column + "," );
+            }
+            query = sb + ")";
+            System.out.println(query);
+            statement.execute(query);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }
 
 class PasswordService extends DatabaseService {
-    private String schema, table;
+    private String table;
     public PasswordService(String schema, String table) {
         super(schema, table);
-        this.schema = schema;
+        String[] columns = {"username varchar(256) NOT NULL PRIMARY KEY", "password varchar(256) NOT NULL"};
         this.table = table;
+        createTable(super.statement, table, columns);
     }
 
     public void changePassword(String user, String password) {
@@ -52,6 +69,19 @@ class PasswordService extends DatabaseService {
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public void addUser(String user, String pass) {
+        String encryptedPass = BCrypt.hashpw(pass, BCrypt.gensalt(12));
+        String query = String.format("INSERT INTO %s (username, password) VALUES ('%s','%s')", this.table, user, encryptedPass);
+        while(true){
+            try {
+                super.statement.execute(query);
+                break;
+            } catch (SQLException e) {
+                query = String.format("UPDATE %s SET password = '%s' WHERE username = '%s'", this.table, user, encryptedPass);
+            }
         }
     }
 
