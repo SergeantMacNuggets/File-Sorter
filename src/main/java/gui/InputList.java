@@ -147,7 +147,7 @@ public class InputList extends JScrollPane {
     }
 
     public ListCellRenderer<? super String> getRenderer() {
-        return new DefaultListCellRenderer(){
+        return new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList<?> list,
                                                           Object value, int index, boolean isSelected,

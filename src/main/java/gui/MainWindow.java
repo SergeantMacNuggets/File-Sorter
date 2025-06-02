@@ -1,6 +1,7 @@
 package gui;
 
-import com.sun.tools.javac.Main;
+import back_end.Account;
+import back_end.DatabaseConnection;
 import listeners.*;
 
 import javax.swing.JPanel;
@@ -32,7 +33,7 @@ public class MainWindow extends JFrame {
     private final Input sourceFolder, destFolder;
     int x = 700, y = 500;
     private MainWindow() {
-
+        DatabaseConnection.run();
         AccountWindow.getInstance(this);
         rightList = new InputList(new Dimension(290,280));
         leftList = new InputList(new Dimension(290,280));

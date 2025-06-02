@@ -1,5 +1,6 @@
 package gui;
 
+import back_end.Account;
 import listeners.AddListener;
 import listeners.ClearListener;
 import listeners.RemoveListener;

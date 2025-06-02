@@ -13,6 +13,7 @@ import javax.swing.JLabel;
 import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.io.File;
 
 public class FileWindow extends JFrame {
 
@@ -37,10 +38,9 @@ public class FileWindow extends JFrame {
             else if(temp.getSelectedValue().charAt(1)=='-') buttons[0].setText("Include");
 
         });
-        fileList.addListElement("index.cpp");
-        fileList.addListElement("main.c");
-        fileList.addListElement("bubbleSort.java");
-        fileList.addListElement("encrypt.py");
+
+        File directory = new File("C:/Users/Deluxo/Documents");
+        addFiles(directory, "mp3");
         main.setBorder(padding);
         main.setLayout(new BorderLayout());
         main.add(fileList,BorderLayout.WEST);
@@ -52,6 +52,22 @@ public class FileWindow extends JFrame {
                 .setWindowConstants(JFrame.DO_NOTHING_ON_CLOSE)
                 .setComponents(main)
                 .build();
+    }
+
+    public static String getFileExtension(String fileName) {
+        int dotIndex = fileName.lastIndexOf('.');
+        if (dotIndex > 0 && dotIndex < fileName.length() - 1) {
+            return fileName.substring(dotIndex + 1).toLowerCase();
+        }
+        return "";
+    }
+    public void addFiles(File directory, String fileExtension) {
+        File[] files = directory.listFiles();
+        for (File file : files) {
+            if (getFileExtension(file.getName()).equals(fileExtension)) {
+                fileList.addListElement(file.getName());
+            }
+        }
     }
 
     public void start() {
@@ -84,9 +100,8 @@ public class FileWindow extends JFrame {
     }
 
     private ActionListener addButtonListeners(String buttonText) {
-        JList<String> temp = fileList.getList();
         return switch (buttonText) {
-            case Buttons.DISABLER -> (ActionListener) e -> {
+            case Buttons.DISABLER -> e -> {
 
                 JButton temp1 = (JButton) e.getSource();
                 temp1.setText((temp1.getText().equals("Exclude"))? "Include": "Exclude");
@@ -94,9 +109,9 @@ public class FileWindow extends JFrame {
 
             };
 
-            case Buttons.OK -> (ActionListener) e -> System.out.println("Ok");
+            case Buttons.OK -> _ -> System.out.println("Ok");
 
-            case Buttons.CANCEL -> (ActionListener) e -> {
+            case Buttons.CANCEL -> _ -> {
                 dispose();
                 setVisible(false);
             };

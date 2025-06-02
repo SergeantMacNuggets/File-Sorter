@@ -1,7 +1,8 @@
 package gui;
 
+import back_end.AccountFactory;
 import net.miginfocom.swing.MigLayout;
-
+import back_end.AccountType;
 import javax.imageio.ImageIO;
 import javax.swing.JTextField;
 import java.awt.Shape;
