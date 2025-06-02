@@ -9,10 +9,8 @@ import javax.swing.JPasswordField;
 import javax.swing.JPanel;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import java.io.FileReader;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.FileWriter;
+import javax.swing.JFileChooser;
+import java.io.*;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Connection;
@@ -57,6 +55,7 @@ public abstract class DatabaseConnection {
             jsonObject.put("user",user);
             jsonObject.put("password",password);
             checkConnection(hostname, user, password);
+
             FileWriter fileWriter = new FileWriter("mySQL_Info.json");
             fileWriter.write(jsonObject.toString());
             fileWriter.close();
@@ -65,6 +64,7 @@ public abstract class DatabaseConnection {
             System.exit(0);
         }
     }
+
 
     private static void checkConnection(String hostname, String username, String password) throws IOException{
         try {
