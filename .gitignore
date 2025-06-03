@@ -37,3 +37,4 @@ build/
 ### Mac OS ###
 .DS_Store!/mySQL_Info.json
 /mySQL_Info.json
+/out/
