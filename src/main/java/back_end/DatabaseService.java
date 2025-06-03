@@ -11,7 +11,7 @@ public class DatabaseService {
     protected Statement statement;
     protected ResultSet resultSet;
 
-    public DatabaseService(String schemaName, String tableName) {
+    public DatabaseService(String schemaName) {
         String query = "USE " + schemaName;
         while (true) {
             try {
@@ -33,7 +33,7 @@ public class DatabaseService {
         statement.close();
         connection.close();
     }
-    protected void createTable(Statement s, String table, String[] columns){
+    protected void createTable(String table, String[] columns){
         String query = String.format("CREATE TABLE %s (",table);
         StringBuilder sb = new StringBuilder(query);
         try {
@@ -52,10 +52,10 @@ public class DatabaseService {
 class PasswordService extends DatabaseService {
     private String table;
     public PasswordService(String schema, String table) {
-        super(schema, table);
+        super(schema);
         String[] columns = {"username varchar(256) NOT NULL PRIMARY KEY", "password varchar(256) NOT NULL"};
         this.table = table;
-        createTable(super.statement, table, columns);
+        createTable(table, columns);
     }
 
     public void changePassword(String user, String password) {
@@ -84,18 +84,6 @@ class PasswordService extends DatabaseService {
             }
         }
     }
-
-    //Ayaw kalimot Delete ani pag ting release!!!!
-    public void resetPassword() {
-        try {
-            String defaultPassword = BCrypt.hashpw("user", BCrypt.gensalt(12));
-            String query = String.format("UPDATE %s SET password='%s' WHERE username = user",this.table, defaultPassword);
-            resultSet = statement.executeQuery(query);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
 
     public boolean authorize(String username, String password) {
         try {

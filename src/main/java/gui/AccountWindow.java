@@ -238,15 +238,15 @@ public class AccountWindow extends JDialog {
                     AccountFactory.getAccount(AccountType.ADMIN).changePassword(username.getText(),newPassField.getText());
                     panelSwitcher(loginPanel());
                     panelState = !panelState;
+                    return;
                 }
             } else if(loginButtonState) {
                 AccountFactory.getAccount(AccountType.ADMIN);
                 parentFrame.setVisible(true);
                 this.setVisible(false);
+                return;
             }
-            else {
-                JOptionPane.showMessageDialog(null, "Wrong Username or Password");
-            }
+            JOptionPane.showMessageDialog(null, "Wrong Username or Password");
         };
     }
 

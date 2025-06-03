@@ -3,6 +3,7 @@ package back_end;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.mindrot.jbcrypt.BCrypt;
 
 import javax.swing.JTextField;
 import javax.swing.JPasswordField;
@@ -53,7 +54,7 @@ public abstract class DatabaseConnection {
             String password = OptionPane(new JPasswordField(10), "Password");
             jsonObject.put("hostname", hostname);
             jsonObject.put("user",user);
-            jsonObject.put("password",password);
+            jsonObject.put("password", BCrypt.hashpw(password, BCrypt.gensalt(12)));
             checkConnection(hostname, user, password);
 
             FileWriter fileWriter = new FileWriter("mySQL_Info.json");
