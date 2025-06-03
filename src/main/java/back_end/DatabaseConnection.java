@@ -54,7 +54,7 @@ public abstract class DatabaseConnection {
             String password = OptionPane(new JPasswordField(10), "Password");
             jsonObject.put("hostname", hostname);
             jsonObject.put("user",user);
-            jsonObject.put("password", BCrypt.hashpw(password, BCrypt.gensalt(12)));
+            jsonObject.put("password", password);
             checkConnection(hostname, user, password);
 
             FileWriter fileWriter = new FileWriter("mySQL_Info.json");
