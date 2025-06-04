@@ -6,26 +6,38 @@ import net.miginfocom.swing.MigLayout;
 import back_end.AccountType;
 import javax.imageio.ImageIO;
 import javax.swing.JTextField;
-import java.awt.Shape;
 import java.awt.Graphics;
+import java.awt.Shape;
+import java.awt.Dimension;
+import java.awt.Font;
 import javax.swing.JPasswordField;
 import javax.swing.JFrame;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
-import java.awt.Dimension;
 import javax.swing.JLabel;
-import java.awt.Font;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import javax.swing.SwingConstants;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
-import java.awt.event.ActionListener;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Objects;
+
+@FunctionalInterface
+interface SubmitFunction {
+    void submitPerform() throws Exception;
+}
+
+@FunctionalInterface
+interface PanelFunction {
+    void panelPerform();
+}
 
 class RoundJTextField extends JTextField {
     private Shape shape;
@@ -87,29 +99,31 @@ public class AccountWindow extends JDialog {
     private final JTextField username;
     private JTextField password;
     private JTextField newPassField;
-    private JButton submit, guestIn, changePass;
+    private JButton submit, guestIn, leftButton;
     private JPanel mainPanel, currentPanel;
-    private boolean panelState;
+    private JLabel forgotPass;
+    private SubmitFunction function;
+    private PanelFunction panelFunction;
+
     private AccountWindow(JFrame parentFrame) {
         super(null, java.awt.Dialog.ModalityType.TOOLKIT_MODAL);
         DatabaseConnection.run();
         submit = new JButton(">");
         guestIn = new JButton("Enter as Guest");
-        changePass = new JButton();
+        leftButton = new JButton();
         this.parentFrame = parentFrame;
-        changePass.setMaximumSize(new Dimension(120,30));
-        changePass.setMinimumSize(new Dimension(120,30));
+        leftButton.setMaximumSize(new Dimension(120,30));
+        leftButton.setMinimumSize(new Dimension(120,30));
         guestIn.setMaximumSize(new Dimension(120,30));
         guestIn.setMinimumSize(new Dimension(120,30));
         username = new RoundJTextField(30);
-        panelState = true;
         currentPanel = loginPanel();
         setup();
         this.setPreferredSize(new Dimension(600,350));
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         this.getContentPane().add(mainPanel);
         try {
-            BufferedImage logo = ImageIO.read(this.getClass().getResourceAsStream("/icon1.png"));
+            BufferedImage logo = ImageIO.read(Objects.requireNonNull(this.getClass().getResourceAsStream("/icon1.png")));
 
             this.setIconImage(
                     new ImageIcon(logo).getImage()
@@ -149,9 +163,9 @@ public class AccountWindow extends JDialog {
         try {
             BufferedImage logo = ImageIO.read(Objects.requireNonNull(this.getClass().getResourceAsStream("/profile.png" )));
             JLabel picLabel = new JLabel(new ImageIcon(logo));
-            changePass.addActionListener(changePanel());
-            submit.addActionListener(submitListener());
             guestIn.addActionListener(guestListener());
+            submit.addActionListener(submitListener());
+            leftButton.addActionListener(panelListener());
             l.setFont(new Font("Impact", Font.BOLD, 63));
             l.setForeground(SpecificColor.buttonColor);
             l.setPreferredSize(new Dimension(600,50));
@@ -173,19 +187,22 @@ public class AccountWindow extends JDialog {
         mainPanel.repaint();
     }
 
-    private ActionListener changePanel() {
-        return _ -> {
-            if (panelState){
-                panelSwitcher(signupPanel());
-            } else panelSwitcher(loginPanel());
-            panelState = !panelState;
-        };
+    private void setFunction(SubmitFunction function) {
+        this.function = function;
     }
+
+    private void setPanelFunction(PanelFunction panelFunction) {
+        this.panelFunction = panelFunction;
+    }
+
 
     public JPanel loginPanel() {
         JPanel p = new JPanel();
-        changePass.setText("Forgot Password");
-        changePass.setFont(new Font("Ariel",Font.PLAIN, 11));
+        forgotPass = new JLabel("Forgot Password?");
+        forgotPass.setFont(new Font("Ariel", Font.PLAIN, 10));
+        forgotPass.setForeground(SpecificColor.buttonColor);
+        leftButton.setText("Create Account");
+        leftButton.setFont(new Font("Ariel",Font.PLAIN, 11));
         password = new RoundJPasswordField(26);
         submit.setFont(new Font("Impact", Font.BOLD, 15));
         submit.setPreferredSize(new Dimension(45,40));
@@ -193,14 +210,39 @@ public class AccountWindow extends JDialog {
         submit.setForeground(SpecificColor.buttonText);
         username.setPreferredSize(new Dimension(350,40));
         password.setPreferredSize(new Dimension(300,40));
+
+        setFunction(()-> {
+            boolean loginButtonState = AccountFactory.getAccount(AccountType.USER).isEqual(username.getText(),password.getText());
+            if(loginButtonState) {
+                AccountFactory.getAccount(AccountType.USER);
+                parentFrame.setVisible(true);
+                this.setVisible(false);
+
+            } else {
+                throw new Exception();
+            }
+
+        });
         p.setLayout(new MigLayout());
         p.add(new JLabel("Username"){{setFont(new Font("Impact", Font.PLAIN, 16));}},"wrap");
         p.add(username,"wrap 15");
-        p.add(new JLabel("Password"){{setFont(new Font("Impact", Font.PLAIN, 16));}},"wrap");
+        p.add(new JLabel("Password"){{setFont(new Font("Impact", Font.PLAIN, 16));}},"split 2");
+        p.add(forgotPass,"gapleft 140");
+        p.add(new JLabel(),"wrap");
         p.add(password, "split 2");
         p.add(submit,"wrap 20");
-        p.add(changePass, "split 2");
+        p.add(leftButton, "split 2");
         p.add(guestIn, "gapleft 120");
+
+        forgotPass.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                panelSwitcher(changePassPanel());
+            }
+        });
+
+        setPanelFunction(()-> panelSwitcher(signupPanel()));
+        
         return p;
     }
 
@@ -208,7 +250,7 @@ public class AccountWindow extends JDialog {
         JPanel p = new JPanel();
         password = new RoundJPasswordField(12);
         newPassField = new RoundJPasswordField(12);
-        changePass.setText("<- Go Back");
+        leftButton.setText("<- Go Back");
         submit.setFont(new Font("Impact", Font.BOLD, 15));
         submit.setPreferredSize(new Dimension(45,40));
         submit.setBackground(SpecificColor.buttonColor);
@@ -219,34 +261,80 @@ public class AccountWindow extends JDialog {
         p.setLayout(new MigLayout());
         p.add(new JLabel("Username"){{setFont(new Font("Impact", Font.PLAIN, 16));}},"wrap");
         p.add(username,"wrap 15");
+        p.add(new JLabel("Password"){{setFont(new Font("Impact", Font.PLAIN, 14));}}, "split 2");
+        p.add(new JLabel("Confirm Password"){{setFont(new Font("Impact", Font.PLAIN, 14));}}, "gapleft 100");
+        p.add(new JLabel(),"wrap");
+        p.add(password, "split 3");
+        p.add(newPassField);
+        p.add(submit,"wrap 20");
+        p.add(leftButton, "split 2");
+        p.add(guestIn, "gapleft 120");
+
+        setFunction(()-> {
+            if(password.getText().equals(newPassField.getText())) {
+                AccountFactory.getAccount(AccountType.USER).addUser(username.getText(), password.getText());
+                panelSwitcher(loginPanel());
+            }
+        });
+
+        setPanelFunction(()-> panelSwitcher(loginPanel()));
+        return p;
+    }
+
+    public JPanel changePassPanel() {
+        JPanel p = new JPanel();
+        password = new RoundJPasswordField(12);
+        newPassField = new RoundJPasswordField(12);
+        leftButton.setText("<- Go Back");
+        submit.setFont(new Font("Impact", Font.BOLD, 15));
+        submit.setPreferredSize(new Dimension(45,40));
+        submit.setBackground(SpecificColor.buttonColor);
+        submit.setForeground(SpecificColor.buttonText);
+        username.setPreferredSize(new Dimension(350,40));
+        password.setPreferredSize(new Dimension(150,40));
+        newPassField.setPreferredSize(new Dimension(150,40));
+
+        p.setLayout(new MigLayout());
+        p.add(new JLabel("Username"){{setFont(new Font("Impact", Font.PLAIN, 16));}},"wrap");
+        p.add(username,"wrap 15");
         p.add(new JLabel("Old Password"){{setFont(new Font("Impact", Font.PLAIN, 14));}}, "split 2");
         p.add(new JLabel("New Password"){{setFont(new Font("Impact", Font.PLAIN, 14));}}, "gapleft 75");
         p.add(new JLabel(),"wrap");
         p.add(password, "split 3");
         p.add(newPassField);
         p.add(submit,"wrap 20");
-        p.add(changePass, "split 2");
+        p.add(leftButton, "split 2");
         p.add(guestIn, "gapleft 120");
+
+        setFunction(()->{boolean loginButtonState = AccountFactory.getAccount(AccountType.USER).isEqual(username.getText(),password.getText());
+            if(loginButtonState) {
+                AccountFactory.getAccount(AccountType.USER).changePassword(username.getText(),newPassField.getText());
+                panelSwitcher(loginPanel());
+            } else {
+                throw new Exception();
+            }
+        });
+
+        setPanelFunction(()-> panelSwitcher(loginPanel()));
+
         return p;
     }
 
+    private ActionListener panelListener() {
+        return _-> {
+            this.panelFunction.panelPerform();
+        };
+    }
+
+
     private ActionListener submitListener() {
         return _ -> {
-            boolean loginButtonState = AccountFactory.getAccount(AccountType.ADMIN).isEqual(username.getText(),password.getText());
-            if(!panelState) {
-                if(loginButtonState) {
-                    AccountFactory.getAccount(AccountType.ADMIN).changePassword(username.getText(),newPassField.getText());
-                    panelSwitcher(loginPanel());
-                    panelState = !panelState;
-                    return;
-                }
-            } else if(loginButtonState) {
-                AccountFactory.getAccount(AccountType.ADMIN);
-                parentFrame.setVisible(true);
-                this.setVisible(false);
-                return;
+            try {
+                this.function.submitPerform();
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(null, "Wrong Username or Password");
             }
-            JOptionPane.showMessageDialog(null, "Wrong Username or Password");
+
         };
     }
 
@@ -257,6 +345,4 @@ public class AccountWindow extends JDialog {
             this.setVisible(false);
         };
     }
-
 }
-

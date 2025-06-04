@@ -1,6 +1,6 @@
 package back_end;
 
 public enum AccountType {
-    ADMIN,
+    USER,
     GUEST
 }
