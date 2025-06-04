@@ -2,6 +2,8 @@ package gui;
 
 import back_end.Account;
 import back_end.DatabaseConnection;
+import com.github.kwhat.jnativehook.GlobalScreen;
+import com.github.kwhat.jnativehook.NativeHookException;
 import listeners.*;
 
 import javax.swing.JPanel;

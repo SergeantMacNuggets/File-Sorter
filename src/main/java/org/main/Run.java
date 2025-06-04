@@ -2,6 +2,8 @@ package org.main;
 import back_end.DatabaseService;
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.themes.FlatMacDarkLaf;
+import com.github.kwhat.jnativehook.GlobalScreen;
+import com.github.kwhat.jnativehook.NativeHookException;
 import gui.AccountWindow;
 import gui.MainWindow;
 
@@ -13,7 +15,7 @@ public class Run {
 //        #ffa31a - Orange
         FlatLaf.setGlobalExtraDefaults( Collections.singletonMap( "@accentColor", "#ffa31a" ) );
         FlatMacDarkLaf.setup();
-//
+
         MainWindow.getInstance();
 //        new DatabaseService();
     }

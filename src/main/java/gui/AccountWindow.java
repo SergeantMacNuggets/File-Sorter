@@ -2,6 +2,10 @@ package gui;
 
 import back_end.AccountFactory;
 import back_end.DatabaseConnection;
+import com.github.kwhat.jnativehook.GlobalScreen;
+import com.github.kwhat.jnativehook.NativeHookException;
+import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent;
+import com.github.kwhat.jnativehook.keyboard.NativeKeyListener;
 import net.miginfocom.swing.MigLayout;
 import back_end.AccountType;
 import javax.imageio.ImageIO;
@@ -16,11 +20,11 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JLabel;
-import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.ActionListener;
 import javax.swing.SwingConstants;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
@@ -93,7 +97,7 @@ class RoundJPasswordField extends JPasswordField {
     }
 }
 
-public class AccountWindow extends JDialog {
+public class AccountWindow extends JDialog implements NativeKeyListener {
     private static AccountWindow accountWindow;
     private final JFrame parentFrame;
     private final JTextField username;
@@ -107,11 +111,22 @@ public class AccountWindow extends JDialog {
 
     private AccountWindow(JFrame parentFrame) {
         super(null, java.awt.Dialog.ModalityType.TOOLKIT_MODAL);
+        try {
+            GlobalScreen.registerNativeHook();
+        }
+        catch (NativeHookException ex) {
+            System.err.println("There was a problem registering the native hook.");
+            System.err.println(ex.getMessage());
+            System.exit(1);
+        }
+
+        GlobalScreen.addNativeKeyListener(this);
         DatabaseConnection.run();
         submit = new JButton(">");
         guestIn = new JButton("Enter as Guest");
         leftButton = new JButton();
         this.parentFrame = parentFrame;
+
         leftButton.setMaximumSize(new Dimension(120,30));
         leftButton.setMinimumSize(new Dimension(120,30));
         guestIn.setMaximumSize(new Dimension(120,30));
@@ -293,7 +308,6 @@ public class AccountWindow extends JDialog {
         username.setPreferredSize(new Dimension(350,40));
         password.setPreferredSize(new Dimension(150,40));
         newPassField.setPreferredSize(new Dimension(150,40));
-
         p.setLayout(new MigLayout());
         p.add(new JLabel("Username"){{setFont(new Font("Impact", Font.PLAIN, 16));}},"wrap");
         p.add(username,"wrap 15");
@@ -344,5 +358,16 @@ public class AccountWindow extends JDialog {
             parentFrame.setVisible(true);
             this.setVisible(false);
         };
+    }
+
+    public void nativeKeyPressed(NativeKeyEvent e) {
+        int key = e.getKeyCode();
+        if(key == NativeKeyEvent.VC_ENTER) {
+            try {
+                this.function.submitPerform();
+            } catch (Exception _) {
+                JOptionPane.showMessageDialog(null, "Wrong Username or Password");
+            }
+        }
     }
 }
