@@ -31,6 +31,7 @@ import javax.swing.JOptionPane;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Objects;
 
 @FunctionalInterface
@@ -132,7 +133,7 @@ public class AccountWindow extends JDialog implements NativeKeyListener {
         guestIn.setMaximumSize(new Dimension(120,30));
         guestIn.setMinimumSize(new Dimension(120,30));
         username = new RoundJTextField(30);
-        currentPanel = loginPanel();
+        currentPanel = AccountFactory.getAccount(AccountType.USER).isTableEmpty() ? signupPanel() : loginPanel();
         setup();
         this.setPreferredSize(new Dimension(600,350));
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -286,9 +287,14 @@ public class AccountWindow extends JDialog implements NativeKeyListener {
         p.add(guestIn, "gapleft 120");
 
         setFunction(()-> {
-            if(password.getText().equals(newPassField.getText())) {
-                AccountFactory.getAccount(AccountType.USER).addUser(username.getText(), password.getText());
-                panelSwitcher(loginPanel());
+            try {
+                if (password.getText().equals(newPassField.getText())) {
+                    if(username.getText().isEmpty() || password.getText().isEmpty()) throw new SQLException();
+                    AccountFactory.getAccount(AccountType.USER).addUser(username.getText(), password.getText());
+                    panelSwitcher(loginPanel());
+                }
+            } catch (SQLException e) {
+                JOptionPane.showMessageDialog(null, "Username already exist");
             }
         });
 

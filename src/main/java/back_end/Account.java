@@ -1,9 +1,11 @@
 package back_end;
 
+import java.sql.SQLException;
+
 public abstract class Account {
     protected static Account account = null;
 
-    protected PasswordService databaseService = new PasswordService("userlogin", "user") {{addUser("admin","admin");}};
+    protected PasswordService databaseService = new PasswordService("userlogin", "user");
 
     public static Account getInstance() {return account;}
 
@@ -15,7 +17,11 @@ public abstract class Account {
 
     public boolean isEqual(String user, String pass) {return databaseService.authorize(user,pass);}
 
-    public void addUser(String user, String pass) {
+    public boolean isTableEmpty() {
+        return databaseService.isTableEmpty();
+    }
+
+    public void addUser(String user, String pass) throws SQLException {
         databaseService.addUser(user,pass);
     }
 }

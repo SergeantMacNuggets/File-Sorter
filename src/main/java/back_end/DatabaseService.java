@@ -72,17 +72,23 @@ class PasswordService extends DatabaseService {
         }
     }
 
-    public void addUser(String user, String pass) {
+    public void addUser(String user, String pass) throws SQLException{
         String encryptedPass = BCrypt.hashpw(pass, BCrypt.gensalt(12));
         String query = String.format("INSERT INTO %s (username, password) VALUES ('%s','%s')", this.table, user, encryptedPass);
-        while(true){
-            try {
-                super.statement.execute(query);
-                break;
-            } catch (SQLException e) {
-                query = String.format("UPDATE %s SET password = '%s' WHERE username = '%s'", this.table, user, encryptedPass);
+        super.statement.execute(query);
+    }
+
+    public boolean isTableEmpty() {
+        try {
+            String query = String.format("SELECT * FROM %s", this.table);
+            resultSet = statement.executeQuery(query);
+            if(!resultSet.next()) {
+                return true;
             }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
+        return false;
     }
 
     public boolean authorize(String username, String password) {
