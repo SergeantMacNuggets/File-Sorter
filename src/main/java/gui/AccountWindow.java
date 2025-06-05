@@ -1,11 +1,13 @@
 package gui;
 
+import back_end.Account;
 import back_end.AccountFactory;
 import back_end.DatabaseConnection;
 import com.github.kwhat.jnativehook.GlobalScreen;
 import com.github.kwhat.jnativehook.NativeHookException;
 import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent;
 import com.github.kwhat.jnativehook.keyboard.NativeKeyListener;
+import com.sun.tools.javac.Main;
 import net.miginfocom.swing.MigLayout;
 import back_end.AccountType;
 import javax.imageio.ImageIO;
@@ -100,7 +102,7 @@ class RoundJPasswordField extends JPasswordField {
 
 public class AccountWindow extends JDialog implements NativeKeyListener {
     private static AccountWindow accountWindow;
-    private final JFrame parentFrame;
+    private final MainWindow parentFrame;
     private final JTextField username;
     private JTextField password;
     private JTextField newPassField;
@@ -110,7 +112,7 @@ public class AccountWindow extends JDialog implements NativeKeyListener {
     private SubmitFunction function;
     private PanelFunction panelFunction;
 
-    private AccountWindow(JFrame parentFrame) {
+    private AccountWindow(MainWindow parentFrame) {
         super(null, java.awt.Dialog.ModalityType.TOOLKIT_MODAL);
         try {
             GlobalScreen.registerNativeHook();
@@ -160,7 +162,7 @@ public class AccountWindow extends JDialog implements NativeKeyListener {
         this.setVisible(true);
     }
 
-    public static AccountWindow getInstance(JFrame parentFrame) {
+    public static AccountWindow getInstance(MainWindow parentFrame) {
         if(accountWindow == null) {
             accountWindow = new AccountWindow(parentFrame);
         }
@@ -228,8 +230,9 @@ public class AccountWindow extends JDialog implements NativeKeyListener {
         password.setPreferredSize(new Dimension(300,40));
 
         setFunction(()-> {
-            boolean loginButtonState = AccountFactory.getAccount(AccountType.USER).isEqual(username.getText(),password.getText());
+            boolean loginButtonState = Account.isEqual(username.getText(),password.getText());
             if(loginButtonState) {
+                Account.clearInstance();
                 AccountFactory.getAccount(AccountType.USER);
                 parentFrame.setVisible(true);
                 this.setVisible(false);
@@ -237,7 +240,6 @@ public class AccountWindow extends JDialog implements NativeKeyListener {
             } else {
                 throw new Exception();
             }
-
         });
         p.setLayout(new MigLayout());
         p.add(new JLabel("Username"){{setFont(new Font("Impact", Font.PLAIN, 16));}},"wrap");
@@ -290,7 +292,7 @@ public class AccountWindow extends JDialog implements NativeKeyListener {
             try {
                 if (password.getText().equals(newPassField.getText())) {
                     if(username.getText().isEmpty() || password.getText().isEmpty()) throw new SQLException();
-                    AccountFactory.getAccount(AccountType.USER).addUser(username.getText(), password.getText());
+                    Account.addUser(username.getText(), password.getText());
                     panelSwitcher(loginPanel());
                 }
             } catch (SQLException e) {
@@ -326,9 +328,10 @@ public class AccountWindow extends JDialog implements NativeKeyListener {
         p.add(leftButton, "split 2");
         p.add(guestIn, "gapleft 120");
 
-        setFunction(()->{boolean loginButtonState = AccountFactory.getAccount(AccountType.USER).isEqual(username.getText(),password.getText());
+        setFunction(()->{
+            boolean loginButtonState = Account.isEqual(username.getText(),password.getText());
             if(loginButtonState) {
-                AccountFactory.getAccount(AccountType.USER).changePassword(username.getText(),newPassField.getText());
+                Account.changePassword(username.getText(),newPassField.getText());
                 panelSwitcher(loginPanel());
             } else {
                 throw new Exception();
@@ -360,9 +363,16 @@ public class AccountWindow extends JDialog implements NativeKeyListener {
 
     private ActionListener guestListener() {
         return _->{
-            AccountFactory.getAccount(AccountType.GUEST);
-            parentFrame.setVisible(true);
-            this.setVisible(false);
+            String username = JOptionPane.showInputDialog(null,"Input the username you want to visit:");
+            if(!username.isEmpty() && Account.isEqual(username)) {
+                JOptionPane.showMessageDialog(null, "Logging in as " + username);
+                Account.clearInstance();
+                AccountFactory.getAccount(AccountType.GUEST);
+                parentFrame.setVisible(true);
+                this.setVisible(false);
+            } else {
+                JOptionPane.showMessageDialog(null, "Username not found");
+            }
         };
     }
 

@@ -1,5 +1,6 @@
 package gui;
 
+import back_end.Account;
 import listeners.Data;
 import listeners.UndoListener;
 
@@ -31,7 +32,6 @@ public class InputList extends JScrollPane {
     private Stack<Data> stack;
     private StringBuilder sb;
     private boolean childInput;
-
 
     InputList(Dimension dimension) {
         this.dimension = dimension;

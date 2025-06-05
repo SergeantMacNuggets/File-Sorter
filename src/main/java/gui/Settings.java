@@ -1,4 +1,5 @@
 package gui;
+import back_end.Account;
 import listeners.RemoveListener;
 
 import javax.swing.JPanel;
@@ -41,28 +42,33 @@ public class Settings extends JFrame {
         fileList.getList().setFocusable(true);
         fileList.getList().setEnabled(true);
 
-        for(String key: FileMap.getInstance().keySet()) {
-            categoryList.addListElement(key);
-        }
+        if(Account.getInstance().getState()){
+            categoryButton.setEnabled(Account.getInstance().getState());
+            fileButton.setEnabled(Account.getInstance().getState());
+            categoryButton.addActionListener(e -> {
+                if (!FileMap.getInstance().containsKey(categoryText.getText()))
+                    FileMap.getInstance().put(categoryText.getText(), new DefaultListModel<>());
+            });
 
+            categoryList.getList().addMouseListener(new RemoveListener(categoryList));
+            fileList.getList().addMouseListener(new RemoveListener(fileList));
+        }
         categoryList.getList().addMouseListener(new MouseAdapter() {
             @SuppressWarnings("unchecked")
             @Override
             public void mouseClicked(MouseEvent e) {
-                if(SwingUtilities.isLeftMouseButton(e)){
+                if (SwingUtilities.isLeftMouseButton(e)) {
                     JList<String> mouseList = (JList<String>) e.getSource();
                     String key = mouseList.getSelectedValue();
                     categoryList.getChildList().setModel(FileMap.getInstance().get(key));
                 }
             }
         });
-        categoryButton.addActionListener(e->{
-            if(!FileMap.getInstance().containsKey(categoryText.getText()))
-                FileMap.getInstance().put(categoryText.getText(), new DefaultListModel<>());
-        });
 
-        categoryList.getList().addMouseListener(new RemoveListener(categoryList));
-        fileList.getList().addMouseListener(new RemoveListener(fileList));
+        for(String key: FileMap.getInstance().keySet()) {
+            categoryList.addListElement(key);
+        }
+
 
         new WindowBuilder(this)
                 .setDimension(400,300)
@@ -71,6 +77,7 @@ public class Settings extends JFrame {
                 .setComponents(getMainPanel())
                 .build();
     }
+
 
     public void start() {
         this.setVisible(true);

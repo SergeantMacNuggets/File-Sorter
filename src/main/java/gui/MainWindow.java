@@ -20,6 +20,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import java.awt.Dimension;
 import java.awt.BorderLayout;
+import java.util.Set;
 import java.util.stream.Stream;
 
 interface PanelMaker {
@@ -39,7 +40,6 @@ public class MainWindow extends JFrame {
         rightList = new InputList(new Dimension(290,280));
         leftList = new InputList(new Dimension(290,280));
         leftList.hasDisabler(true);
-
         file = new ComboBoxInput(new JRadioButton("File Format"), x-150,20)
             {{this.setToolTip("Input your chosen file format here");}};
 
@@ -168,6 +168,7 @@ public class MainWindow extends JFrame {
         mainWindow = null;
     }
 
+
 }
 
 class MenuBar extends JMenuBar {
@@ -198,6 +199,7 @@ class MenuBar extends JMenuBar {
             Account.clearInstance();
             AccountWindow.clearInstance();
             MainWindow.clearInstance();
+            Settings.clearInstance();
             MainWindow.getInstance();
         });
         account.add(signOut);

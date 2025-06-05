@@ -1,4 +1,5 @@
 package listeners;
+import back_end.Account;
 import gui.InputList;
 
 import javax.swing.SwingUtilities;
@@ -37,26 +38,30 @@ public class InputListListener {
 
     public static ClickListener disabler(InputList list) {
         return ()->{
-            StringBuilder str = new StringBuilder(list.getList().getSelectedValue());
-            str.setCharAt(1,(str.charAt(1)=='+') ? '-' : '+');
-            list.getModel().setElementAt(str.toString(),list.getList().getSelectedIndex());
+            if (Account.getInstance().getState()){
+                StringBuilder str = new StringBuilder(list.getList().getSelectedValue());
+                str.setCharAt(1, (str.charAt(1) == '+') ? '-' : '+');
+                list.getModel().setElementAt(str.toString(), list.getList().getSelectedIndex());
+            }
         };
     }
 
     public static void setRightDoubleClick(InputList list, ClickListener clickListener) {
-        list.getList().addMouseListener(new MouseAdapter() {
-            @SuppressWarnings("unchecked")
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if(SwingUtilities.isRightMouseButton(e)) {
-                    JList<String> temp = (JList<String>) e.getSource();
-                    temp.setSelectedIndex(temp.locationToIndex(e.getPoint()));
-                    if(e.getClickCount() % 2 == 0 && !e.isConsumed()) {
-                        clickListener.perform();
+        if (Account.getInstance().getState()){
+            list.getList().addMouseListener(new MouseAdapter() {
+                @SuppressWarnings("unchecked")
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    if (SwingUtilities.isRightMouseButton(e)) {
+                        JList<String> temp = (JList<String>) e.getSource();
+                        temp.setSelectedIndex(temp.locationToIndex(e.getPoint()));
+                        if (e.getClickCount() % 2 == 0 && !e.isConsumed()) {
+                            clickListener.perform();
+                        }
                     }
                 }
-            }
-        });
+            });
+        }
     }
 
 }

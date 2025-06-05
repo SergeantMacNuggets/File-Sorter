@@ -9,8 +9,9 @@ import listeners.UndoListener;
 import javax.swing.JButton;
 class Button extends JButton {
     Button() {
-        this.setEnabled(Account.getState());
+        this.setEnabled(Account.getInstance().getState());
     }
+
 }
 
 class AddButton extends Button {

@@ -107,4 +107,20 @@ class PasswordService extends DatabaseService {
 
         return false;
     }
+
+    public boolean authorizeGuest(String username) {
+        try {
+            String query = String.format("SELECT * FROM %s WHERE username = '%s'", this.table ,username);
+            resultSet = statement.executeQuery(query);
+
+            if(resultSet.next()) {
+                return username.equals(resultSet.getString("username"));
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return false;
+    }
 }

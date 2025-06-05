@@ -3,7 +3,6 @@ package gui;
 
 import listeners.InputListListener;
 
-//import javax.swing.*;
 import javax.swing.JFrame;
 import javax.swing.JButton;
 import javax.swing.BorderFactory;
@@ -11,7 +10,10 @@ import javax.swing.JPanel;
 import javax.swing.JList;
 import javax.swing.JLabel;
 import javax.swing.border.Border;
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
+import java.awt.Component;
 import java.awt.event.ActionListener;
 import java.io.File;
 
