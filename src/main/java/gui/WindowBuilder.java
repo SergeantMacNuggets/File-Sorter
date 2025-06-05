@@ -7,7 +7,6 @@ import java.awt.Dimension;
 import java.awt.LayoutManager;
 import javax.swing.ImageIcon;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 
 public class WindowBuilder {
