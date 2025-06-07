@@ -1,9 +1,7 @@
 package gui;
 
 import back_end.Account;
-import back_end.DatabaseConnection;
-import com.github.kwhat.jnativehook.GlobalScreen;
-import com.github.kwhat.jnativehook.NativeHookException;
+import back_end.ConfigService;
 import listeners.*;
 
 import javax.swing.JPanel;
@@ -20,7 +18,6 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import java.awt.Dimension;
 import java.awt.BorderLayout;
-import java.util.Set;
 import java.util.stream.Stream;
 
 interface PanelMaker {
@@ -37,6 +34,7 @@ public class MainWindow extends JFrame {
     int x = 700, y = 500;
     private MainWindow() {
         AccountWindow.getInstance(this);
+        ConfigService.getInstance().refresh();
         rightList = new InputList(new Dimension(290,280));
         leftList = new InputList(new Dimension(290,280));
         leftList.hasDisabler(true);
@@ -51,7 +49,6 @@ public class MainWindow extends JFrame {
 
         destFolder = new ComboBoxInput(new JLabel("Destination Folder"),x-375,25)
             {{this.setToolTip("Input the URL Directory to where would you send your files");}};
-
         new WindowBuilder(this)
                 .setDimension(x,y)
                 .setTitle("Automatic File Sorter")
@@ -59,7 +56,7 @@ public class MainWindow extends JFrame {
                 .setWindowConstants(JFrame.EXIT_ON_CLOSE)
                 .setComponents(mainPanel())
                 .build();
-        this.setJMenuBar(new MenuBar(this));
+        this.setJMenuBar(new MenuBar());
         this.updateFormat();
         this.setVisible(true);
     }
@@ -90,6 +87,8 @@ public class MainWindow extends JFrame {
             }
         }
         tempBox.addItem("Other");
+        tempBox.setSelectedIndex(-1);
+        file.setListener(new ComboboxListener(file, BoxInput.FILE));
     }
 
     private JPanel mainPanel() {
@@ -113,7 +112,6 @@ public class MainWindow extends JFrame {
 
         InputListListener.setRightDoubleClick(leftList, InputListListener.disabler(leftList));
 
-        file.setListener(new ComboboxListener(file, BoxInput.FILE));
 
         sourceFolder.setListener(new ComboboxListener(sourceFolder,BoxInput.FOLDER));
 
@@ -172,9 +170,7 @@ public class MainWindow extends JFrame {
 }
 
 class MenuBar extends JMenuBar {
-    private MainWindow parentFrame;
-    MenuBar(MainWindow parentFrame) {
-        this.parentFrame = parentFrame;
+    MenuBar() {
         JMenu[] menu = {getFileMenu(), new JMenu("Edit"),
                 new JMenu("View"), getAccountMenu(), new JMenu("Help")
         ,new JMenu("About")};

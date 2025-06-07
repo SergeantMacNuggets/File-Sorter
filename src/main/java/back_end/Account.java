@@ -5,7 +5,9 @@ import java.sql.SQLException;
 public abstract class Account {
     protected static Account account = null;
 
-    protected static PasswordService databaseService = new PasswordService("userlogin", "user");
+    protected String username = "";
+
+    protected static PasswordService databaseService = new PasswordService("users_info");
 
     public static void clearInstance() {account = null;}
 
@@ -16,6 +18,10 @@ public abstract class Account {
     public static void changePassword(String username,String password) {databaseService.changePassword(username, password);}
 
     public static boolean isEqual(String user, String pass) {return databaseService.authorize(user,pass);}
+
+    public void setUsername(String username) {this.username = username;}
+
+    public String getUsername() {return username;}
 
     public static boolean isEqual(String user) {return databaseService.authorizeGuest(user);}
 

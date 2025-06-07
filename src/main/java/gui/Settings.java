@@ -1,7 +1,9 @@
 package gui;
 import back_end.Account;
+import back_end.ConfigService;
 import listeners.RemoveListener;
 
+import javax.security.sasl.SaslServer;
 import javax.swing.JPanel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -20,14 +22,15 @@ import java.awt.event.MouseEvent;
 
 public class Settings extends JFrame {
     private static Settings settings;
+    private ConfigService configService;
     private final JButton categoryButton;
     private final JButton fileButton;
     private final JTextField categoryText;
     private final JTextField fileText;
     private final InputList categoryList;
     private final InputList fileList;
-    Settings() {
-
+    private Settings() {
+        configService = ConfigService.getInstance();
         categoryList = new InputList(new Dimension(180,100));
         fileList = new InputList(new Dimension(160,0));
         categoryText = new JTextField();
@@ -42,12 +45,13 @@ public class Settings extends JFrame {
         fileList.getList().setFocusable(true);
         fileList.getList().setEnabled(true);
 
-        if(Account.getInstance().getState()){
+        if(Account.getInstance().getState()) {
             categoryButton.setEnabled(Account.getInstance().getState());
             fileButton.setEnabled(Account.getInstance().getState());
-            categoryButton.addActionListener(e -> {
-                if (!FileMap.getInstance().containsKey(categoryText.getText()))
+            categoryButton.addActionListener(_ -> {
+                if (!FileMap.getInstance().containsKey(categoryText.getText())) {
                     FileMap.getInstance().put(categoryText.getText(), new DefaultListModel<>());
+                }
             });
 
             categoryList.getList().addMouseListener(new RemoveListener(categoryList));
@@ -106,12 +110,26 @@ public class Settings extends JFrame {
         return main;
     }
 
+    private void insertIntoTable() {
+        configService.resetFile();
+        for(String key: FileMap.getInstance().keySet()) {
+            DefaultListModel<String> temp = FileMap.getInstance().get(key);
+            for(int i=0; i < temp.getSize(); i++) {
+                configService.addFile(key,temp.get(i));
+            }
+        }
+    }
+
 
     private JPanel getSouthPanel() {
         JPanel south =  new JPanel();
         JButton okButton = new JButton("Ok");
         okButton.addActionListener(_->{
+            System.out.println(FileMap.getInstance());
+            insertIntoTable();
             MainWindow.getInstance().updateFormat();
+            categoryList.clearStack();
+            fileList.clearStack();
             this.dispose();
             this.setVisible(false);
         });

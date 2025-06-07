@@ -18,13 +18,15 @@ public class UndoListener extends ButtonListener implements KeyListener {
             if (l.getUndoCount() > 0){
                 switch (l.getStack().peek().undo()) {
                     case Undo.ADD:
-                        l.getModel().removeElement(l.getStack().peek().input());
+                        String inputAdd = l.peek().input();
+                        l.getModel().removeElement(inputAdd);
+                        FileMap.getInstance().remove(inputAdd);
                         l.pop();
                         l.setUndoCount(l.getUndoCount()-1);
                         if (!l.childInputState() && hasChild(l)) {
-                            InputList temp = l.getChildList();
-                            temp.getModel().removeElement(temp.getStack().peek().input());
-                            temp.pop();
+                            InputList tempList = l.getChildList();
+                            tempList.getModel().removeElement(tempList.getStack().peek().input());
+                            tempList.pop();
                         }
                         break;
                     case Undo.REMOVE:

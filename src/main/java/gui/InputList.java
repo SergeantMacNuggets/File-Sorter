@@ -82,6 +82,8 @@ public class InputList extends JScrollPane {
         this.stack.push(data);
     }
 
+    public void clearStack() {this.stack.clear();}
+
     public void pop() {
         this.stack.pop();
     }
@@ -113,6 +115,7 @@ public class InputList extends JScrollPane {
 
     public void hasDisabler(boolean disabler){this.disabler=disabler;}
 
+
     public void addAll(boolean state) throws NullPointerException {
         sb = new StringBuilder();
         if (components != null) {
@@ -125,9 +128,10 @@ public class InputList extends JScrollPane {
         }
 
         if(state) {
-            if(!list.contains("[+] " + sb.toString())) {
-                if(!list.contains("[-] " + sb.toString()))
+            if(!list.contains((this.disabler) ? "[+] "  + sb.toString() : sb.toString())) {
+                if(!list.contains((this.disabler) ? "[-] "  + sb.toString() : sb.toString())) {
                     this.addListElement(sb.toString());
+                }
                 else throw new NullPointerException();
             }
             else throw new NullPointerException();
@@ -135,8 +139,8 @@ public class InputList extends JScrollPane {
         else {
             this.addListElement(sb.toString());
         }
-
     }
+
 
     public String getString() {
         return (this.disabler) ? "[+] "  + sb.toString() : sb.toString();
