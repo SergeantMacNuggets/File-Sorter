@@ -3,8 +3,6 @@ package back_end;
 import gui.FileMap;
 
 import javax.swing.DefaultListModel;
-import java.io.File;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class ConfigService extends DatabaseService {
