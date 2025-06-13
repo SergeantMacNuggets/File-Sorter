@@ -42,5 +42,12 @@ public class FileMap extends HashMap<String, DefaultListModel<String>> {
 }
 
 class SortMap extends HashMap<String, String> {
+    private static SortMap sortMap;
 
+    public static SortMap getInstance() {
+        if(sortMap == null) {
+            sortMap = new SortMap();
+        }
+        return sortMap;
+    }
 }

@@ -3,7 +3,6 @@ import back_end.Account;
 import back_end.ConfigService;
 import listeners.RemoveListener;
 
-import javax.security.sasl.SaslServer;
 import javax.swing.JPanel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -22,7 +21,7 @@ import java.awt.event.MouseEvent;
 
 public class Settings extends JFrame {
     private static Settings settings;
-    private ConfigService configService;
+    private final ConfigService configService;
     private final JButton categoryButton;
     private final JButton fileButton;
     private final JTextField categoryText;
