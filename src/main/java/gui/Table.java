@@ -6,32 +6,22 @@ import java.util.Vector;
 
 public class Table extends JTable {
     private DefaultTableModel model;
-    public Table(Object... columns) {
-        model = new DefaultTableModel() {
-            @Override
-            public Class<?> getColumnClass(int columnIndex) {
-                return (columnIndex == 0) ? Boolean.class : String.class;
-            }
+    Table() {
+    }
 
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return column == 0;
-            }
+    public void setDefaultModel(DefaultTableModel model) {
+        this.model = model;
+    }
 
-            @Override
-            public void setValueAt(Object aValue, int row, int column) {
-                if (aValue instanceof Boolean && column == 0) {
-                    System.out.println(aValue);
-                    Vector rowData = (Vector)getDataVector().get(row);
-                    rowData.set(0, (boolean)aValue);
-                    fireTableCellUpdated(row, column);
-                }
-            }
-        };
+    @Override
+    public boolean isCellEditable(int row, int column) {
+        return false;
+    };
+
+    public void setColumns(Object... columns) {
         for(Object c: columns) {
             model.addColumn(c);
         }
-
         this.setModel(model);
     }
 

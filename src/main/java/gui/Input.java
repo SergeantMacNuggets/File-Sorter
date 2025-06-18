@@ -2,11 +2,9 @@ package gui;
 
 import com.toedter.calendar.JDateChooser;
 import net.miginfocom.swing.MigLayout;
-import javax.swing.JPanel;
-import javax.swing.JComponent;
-import javax.swing.JComboBox;
+
+import javax.swing.*;
 import java.awt.Dimension;
-import javax.swing.JRadioButton;
 import java.awt.event.ActionListener;
 
 
@@ -14,6 +12,7 @@ public abstract class Input extends JPanel {
     public abstract String getInput() throws NullPointerException;
     public abstract void setListener(ActionListener e);
     public abstract JComponent getTextField();
+    public abstract void addItem(String s);
     public abstract void setToolTip(String s);
     public abstract boolean isEnabled();
 }
@@ -25,7 +24,6 @@ class ComboBoxInput extends Input {
         textField.setEditable(true);
         textField.setPreferredSize(new Dimension(x,y));
         textField.setPrototypeDisplayValue("XXXXXXXXXXXXXXXXXX");
-        textField.addItem("Other");
         textField.setSelectedIndex(-1);
         if(component instanceof JRadioButton r) {
             r.setSelected(true);
@@ -45,6 +43,12 @@ class ComboBoxInput extends Input {
 
     public JComboBox<String> getTextField() {
         return textField;
+    }
+
+    @Override
+    public void addItem(String s) {
+        textField.addItem(s);
+        textField.setSelectedIndex(-1);
     }
 
     @Override
@@ -69,20 +73,15 @@ class ComboBoxInput extends Input {
 
 class DateInput extends Input {
 
-    JRadioButton radioButton;
+
     JDateChooser textField;
 
     DateInput(String title, int x, int y) {
-        radioButton = new JRadioButton(title);
         textField = new JDateChooser("MM/dd/yy","##/##/##", '_');
         textField.setDateFormatString("MM/dd/yy");
-        textField.setEnabled(false);
         textField.setPreferredSize(new Dimension(x,y));
-        radioButton.addActionListener(_->
-                textField.setEnabled(radioButton.isSelected())
-        );
         this.setLayout(new MigLayout("insets 0"));
-        this.add(radioButton, "wrap");
+        this.add(new JLabel(title), "wrap");
         this.add(textField);
     }
 
@@ -104,11 +103,14 @@ class DateInput extends Input {
         };
     }
 
-    public String getInput() throws NullPointerException{
+    public String getInput() {
+        try {
+            String[] output = textField.getDate().toString().split(" ");
+            return String.format("%s/%s/%s", monthToNum(output[1]), output[2], output[output.length-1]);
 
-        String[] output = textField.getDate().toString().split(" ");
-
-        return (textField.isEnabled()) ? String.format("%s/%s/%s", monthToNum(output[1]), output[2], output[output.length-1]) : "";
+        } catch (NullPointerException e) {
+            return "null";
+        }
     }
 
     @Override
@@ -119,6 +121,11 @@ class DateInput extends Input {
     @Override
     public JComponent getTextField() {
         return textField;
+    }
+
+    @Override
+    public void addItem(String s) {
+
     }
 
     @Override
