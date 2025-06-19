@@ -1,11 +1,12 @@
 package gui;
 
 import javax.swing.DefaultListModel;
+import javax.swing.table.DefaultTableModel;
 import java.util.HashMap;
 
 
 
-public class FileMap extends HashMap<String, DefaultListModel<String>> {
+public class FileMap extends HashMap<String, DefaultTableModel> {
     private static FileMap fileMap;
     private FileMap() {
 //        put("Codes", new DefaultListModel<>() {{

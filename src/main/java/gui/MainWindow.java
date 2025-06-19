@@ -13,6 +13,7 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Objects;
+import java.util.Stack;
 import java.util.Vector;
 import java.util.stream.Stream;
 
@@ -78,20 +79,20 @@ public class MainWindow extends JFrame {
         tempBox.setSelectedIndex(-1);
     }
 
-    private ActionListener changeCategory() {
-        return e -> {
-            JComboBox<String> categoryBox = category.getTextField();
-            JComboBox<String> fileBox = file.getTextField();
-            if (categoryBox.getSelectedIndex() != -1){
-                DefaultListModel<String> tempModel = FileMap.getInstance().get(categoryBox.getSelectedItem());
-                fileBox.removeAllItems();
-                for (int i = 0; i < tempModel.getSize(); i++) {
-                    fileBox.addItem(tempModel.get(i));
-                }
-                fileBox.addItem("All");
-            }
-        };
-    }
+//    private ActionListener changeCategory() {
+//        return e -> {
+//            JComboBox<String> categoryBox = category.getTextField();
+//            JComboBox<String> fileBox = file.getTextField();
+//            if (categoryBox.getSelectedIndex() != -1){
+//                DefaultListModel<String> tempModel = FileMap.getInstance().get(categoryBox.getSelectedItem());
+//                fileBox.removeAllItems();
+//                for (int i = 0; i < tempModel.getSize(); i++) {
+//                    fileBox.addItem(tempModel.get(i));
+//                }
+//                fileBox.addItem("All");
+//            }
+//        };
+//    }
 
     private JPanel mainPanel() {
         JPanel p = new JPanel();
@@ -106,7 +107,7 @@ public class MainWindow extends JFrame {
         rightPane.setPreferredSize(new Dimension(410,380));
         sourceFolder.addItem("Other");
         destFolder.addItem("Other");
-        category.setListener(changeCategory());
+//        category.setListener(changeCategory());
         sourceFolder.setListener(openDirectory(sourceFolder));
         destFolder.setListener(openDirectory(destFolder));
 
@@ -142,8 +143,10 @@ public class MainWindow extends JFrame {
                                                             this.addActionListener(addRow(leftTable, rightTable));}},
                             new JButton("Remove")  {{this.setToolTipText("Remove Your Configuration");
                                                             this.addActionListener(removeRow(leftTable, rightTable));}},
-                            new ClearButton()   {{this.setToolTipText("Delete All Your Configurations");}},
-                            new UndoButton()    {{this.setToolTipText("Add or Remove Your Previous Configuration");}},
+                            new JButton("Clear")   {{this.setToolTipText("Delete All Your Configurations");
+                                                            this.addActionListener(clearRow(leftTable,rightTable));}},
+                            new JButton("Undo")    {{this.setToolTipText("Add or Remove Your Previous Configuration");
+                                                            this.addActionListener(undoRow(leftTable,rightTable));}},
                             new JButton("Run")     {{this.setToolTipText("Start Sorting");}})
                     .forEach(b ->
                             {
@@ -217,10 +220,10 @@ public class MainWindow extends JFrame {
             try {
                 Object[] leftObject = {true, category.getInput(), file.getInput(), date.getInput()};
                 Object[] rightObject = {sourceFolder.getInput(), destFolder.getInput()};
-
-                leftTable.getDefaultModel().addRow(leftObject);
-                rightTable.getDefaultModel().addRow(rightObject);
+                leftTable.addRow(leftObject);
+                rightTable.addRow(rightObject);
             } catch (NullPointerException x) {
+                x.printStackTrace();
                 JOptionPane.showMessageDialog(null, "Some input is blank!");
             }
         };
@@ -229,12 +232,24 @@ public class MainWindow extends JFrame {
     private ActionListener removeRow(Table leftTable, Table rightTable) {
         return _->{
             int selectedRow = leftTable.getSelectedRow();
-            leftTable.getDefaultModel().removeRow(selectedRow);
-            rightTable.getDefaultModel().removeRow(selectedRow);
+            leftTable.removeRow(selectedRow);
+            rightTable.removeRow(selectedRow);
         };
     }
 
+    private ActionListener clearRow(Table leftTable, Table rightTable) {
+        return _ -> {
+            leftTable.clearTable();
+            rightTable.clearTable();
+        };
+    }
 
+    private ActionListener undoRow(Table leftTable, Table righTable) {
+        return _->{
+            leftTable.undoRow();
+            righTable.undoRow();
+        };
+    }
 }
 
 class MenuBar extends JMenuBar {
