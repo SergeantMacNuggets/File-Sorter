@@ -18,11 +18,6 @@ public class Table extends JTable {
         this.model = model;
     }
 
-    @Override
-    public boolean isCellEditable(int row, int column) {
-        return false;
-    };
-
     public void setColumns(Object... columns) {
         for(Object c: columns) {
             model.addColumn(c);

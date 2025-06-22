@@ -2,6 +2,7 @@ package gui;
 
 import back_end.Account;
 import back_end.ConfigService;
+import back_end.MainService;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -10,6 +11,9 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.Dimension;
 import java.awt.BorderLayout;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Vector;
 import java.util.stream.Stream;
@@ -24,10 +28,20 @@ public class MainWindow extends JFrame {
     private final ComboBoxInput file, category;
     private final DateInput date;
     private final Input sourceFolder, destFolder;
+    private final Table leftTable;
+    private final Table rightTable;
     int x = 950, y = 600;
     private MainWindow() {
         AccountWindow.getInstance(this);
         ConfigService.getInstance().refresh();
+        leftTable = getLeftTable();
+        rightTable = new Table() {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+
+        };
 
         category = new ComboBoxInput(new JLabel("Category"),x-650,20);
 
@@ -66,6 +80,16 @@ public class MainWindow extends JFrame {
         return p;
     }
 
+    public void load() {
+        ArrayList<Object[]> obj = MainService.getInstance().load();
+        for(int y = 0; y < obj.size(); y++) {
+            Object[] leftObj = {obj.get(y)[0], obj.get(y)[1], obj.get(y)[2], obj.get(y)[3]};
+            Object[] rightObj = {obj.get(y)[4], obj.get(y)[5]};
+            leftTable.getDefaultModel().addRow(leftObj);
+            rightTable.getDefaultModel().addRow(rightObj);
+        }
+    }
+
     public void updateFormat() {
         JComboBox<String> categoryBox = category.getTextField();
         JComboBox<String> fileBox = file.getTextField();
@@ -100,8 +124,6 @@ public class MainWindow extends JFrame {
 
     private JPanel mainPanel() {
         JPanel p = new JPanel();
-        Table leftTable = getLeftTable();
-        Table rightTable = new Table();
         rightTable.setDefaultModel(new DefaultTableModel());
         rightTable.setColumns("Source Folder", "Destination Folder");
         JScrollPane rightPane = new JScrollPane(rightTable);
@@ -114,6 +136,14 @@ public class MainWindow extends JFrame {
         category.setListener(changeCategory());
         sourceFolder.setListener(openDirectory(sourceFolder));
         destFolder.setListener(openDirectory(destFolder));
+        this.load();
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                MainWindow.clearInstance();
+                System.exit(0);
+            }
+        });
 
         p.setLayout(new BorderLayout());
 
@@ -188,8 +218,8 @@ public class MainWindow extends JFrame {
             public void setValueAt(Object aValue, int row, int column) {
                 if (aValue instanceof Boolean && column == 0) {
                     System.out.println(aValue);
-                    Vector rowData = (Vector)getDataVector().get(row);
-                    rowData.set(0, (boolean)aValue);
+                    Vector rowData = getDataVector().get(row);
+                    rowData.set(0, aValue);
                     fireTableCellUpdated(row, column);
                 }
             }
@@ -198,7 +228,25 @@ public class MainWindow extends JFrame {
         return leftTable;
     }
 
+    private void save() {
+        MainService service = MainService.getInstance();
+        service.truncate();
+        for(int y = 0; y < leftTable.getDefaultModel().getRowCount(); y++) {
+
+            service.add((boolean) leftTable.getValueAt(y,0),    //Include
+                        (String)  leftTable.getValueAt(y,1),    //Category
+                        (String)  leftTable.getValueAt(y,2),    //File
+                        (String)  leftTable.getValueAt(y,3),    //Date
+
+                        (String)  rightTable.getValueAt(y,0),   //Source Folder
+                        (String)  rightTable.getValueAt(y,1)    //Destination Folder
+
+            );
+        }
+    }
+
     public static void clearInstance() {
+        mainWindow.save();
         mainWindow.setVisible(false);
         mainWindow.dispose();
         mainWindow = null;
@@ -279,9 +327,9 @@ class MenuBar extends JMenuBar {
         JMenu account = new JMenu("Account");
         JMenuItem signOut = new JMenuItem("Sign Out");
         signOut.addActionListener(_->{
+            MainWindow.clearInstance();
             Account.clearInstance();
             AccountWindow.clearInstance();
-            MainWindow.clearInstance();
             Settings.clearInstance();
             MainWindow.getInstance();
         });
