@@ -6,7 +6,7 @@ import java.util.HashMap;
 
 
 
-public class FileMap extends HashMap<String, DefaultTableModel> {
+public class FileMap extends HashMap<String, DefaultListModel<String>> {
     private static FileMap fileMap;
     private FileMap() {
 //        put("Codes", new DefaultListModel<>() {{
@@ -38,6 +38,9 @@ public class FileMap extends HashMap<String, DefaultTableModel> {
             fileMap = new FileMap();
         }
         return fileMap;
+    }
+    public static void setInstance(FileMap newMap) {
+        fileMap = newMap;
     }
 
 }

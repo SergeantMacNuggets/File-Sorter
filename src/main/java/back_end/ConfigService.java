@@ -35,7 +35,7 @@ public class ConfigService extends DatabaseService {
                 while(resultSet.next()) {
                     temp.addElement(resultSet.getString("file_format"));
                 }
-//                FileMap.getInstance().put(key,temp);
+                FileMap.getInstance().put(key,temp);
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);

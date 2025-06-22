@@ -2,7 +2,6 @@ package gui;
 
 import back_end.Account;
 import back_end.ConfigService;
-import listeners.*;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -10,10 +9,8 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.Dimension;
 import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Objects;
-import java.util.Stack;
 import java.util.Vector;
 import java.util.stream.Stream;
 
@@ -70,29 +67,36 @@ public class MainWindow extends JFrame {
     }
 
     public void updateFormat() {
-        JComboBox<String> tempBox = category.getTextField();
-        tempBox.removeAllItems();
+        JComboBox<String> categoryBox = category.getTextField();
+        JComboBox<String> fileBox = file.getTextField();
+        categoryBox.removeAllItems();
 
         for(String key: FileMap.getInstance().keySet()) {
-            tempBox.addItem(key);
+            DefaultListModel<String> tempModel = FileMap.getInstance().get(key);
+            categoryBox.addItem(key);
+            for(int i=0; i<tempModel.size(); i++) {
+                fileBox.addItem(tempModel.get(i));
+            }
         }
-        tempBox.setSelectedIndex(-1);
+        categoryBox.setSelectedIndex(-1);
+        fileBox.setSelectedIndex(-1);
     }
 
-//    private ActionListener changeCategory() {
-//        return e -> {
-//            JComboBox<String> categoryBox = category.getTextField();
-//            JComboBox<String> fileBox = file.getTextField();
-//            if (categoryBox.getSelectedIndex() != -1){
-//                DefaultListModel<String> tempModel = FileMap.getInstance().get(categoryBox.getSelectedItem());
-//                fileBox.removeAllItems();
-//                for (int i = 0; i < tempModel.getSize(); i++) {
-//                    fileBox.addItem(tempModel.get(i));
-//                }
-//                fileBox.addItem("All");
-//            }
-//        };
-//    }
+    private ActionListener changeCategory() {
+        return _ -> {
+            JComboBox<String> categoryBox = category.getTextField();
+            JComboBox<String> fileBox = file.getTextField();
+            fileBox.removeAllItems();
+            if (categoryBox.getSelectedIndex() != -1){
+                DefaultListModel<String> tempModel = FileMap.getInstance().get((String)categoryBox.getSelectedItem());
+                fileBox.removeAllItems();
+                for (int i = 0; i < tempModel.getSize(); i++) {
+                    fileBox.addItem(tempModel.get(i));
+                }
+                fileBox.addItem("All");
+            }
+        };
+    }
 
     private JPanel mainPanel() {
         JPanel p = new JPanel();
@@ -107,7 +111,7 @@ public class MainWindow extends JFrame {
         rightPane.setPreferredSize(new Dimension(410,380));
         sourceFolder.addItem("Other");
         destFolder.addItem("Other");
-//        category.setListener(changeCategory());
+        category.setListener(changeCategory());
         sourceFolder.setListener(openDirectory(sourceFolder));
         destFolder.setListener(openDirectory(destFolder));
 
@@ -200,6 +204,7 @@ public class MainWindow extends JFrame {
         mainWindow = null;
     }
 
+    @SuppressWarnings("unchecked")
     private ActionListener openDirectory(Input i) {
         return e -> {
             JComboBox<String> folder = (JComboBox<String>) i.getTextField();
@@ -223,7 +228,6 @@ public class MainWindow extends JFrame {
                 leftTable.addRow(leftObject);
                 rightTable.addRow(rightObject);
             } catch (NullPointerException x) {
-                x.printStackTrace();
                 JOptionPane.showMessageDialog(null, "Some input is blank!");
             }
         };

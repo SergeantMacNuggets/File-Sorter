@@ -1,6 +1,7 @@
 package gui;
 import back_end.Account;
 import back_end.ConfigService;
+import lombok.Builder;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -9,13 +10,24 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.Dimension;
 import java.awt.Component;
 import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.FileDescriptor;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Stack;
 
 @FunctionalInterface
 interface Lambda {
-    void perform();
+    void perform(DefaultListModel<String> model);
+}
+
+@FunctionalInterface
+interface UndoLambda {
+    void perform(Stack<StackData> undo);
 }
 
 public class Settings extends JFrame {
@@ -23,71 +35,86 @@ public class Settings extends JFrame {
     private final ConfigService configService;
     private final JButton categoryButton;
     private final JButton fileButton;
-    private final Table categoryTable;
-    private final Table fileTable;
+    private final JList<String> categoryList;
+    private final JList<String> fileList;
     private final JScrollPane categoryPane;
     private final JScrollPane filePane;
     private final JTextField categoryText;
     private final JTextField fileText;
+    private final Stack<StackData> undoCategory;
     private Settings() {
         configService = ConfigService.getInstance();
-        categoryTable = new Table();
-        fileTable = new Table();
+        undoCategory = new Stack<>();
+        categoryList = new JList<>();
+        fileList = new JList<>();
         categoryText = new JTextField();
         fileText = new JTextField();
         categoryButton = new JButton("...");
         fileButton = new JButton("...");
-        categoryButton.addActionListener(addRow(categoryTable, categoryText, ()-> {
-            FileMap.getInstance().put(categoryText.getText(), new DefaultTableModel() {{
-                addColumn("File Format");
-            }});
-        }));
-        fileButton.addActionListener(addRow(fileTable, fileText, ()->{
-            String val = (String) categoryTable.getDefaultModel().getValueAt(categoryTable.getSelectedRow(), 0);
-            FileMap.getInstance().get(val).addRow(new Object[]{fileText.getText()});
-        }));
-        categoryTable.setDefaultModel(new DefaultTableModel());
-        fileTable.setDefaultModel(new DefaultTableModel());
-        categoryTable.setColumns("Category");
-        fileTable.setColumns("File Format");
-        categoryPane = new JScrollPane(categoryTable);
-        filePane = new JScrollPane(fileTable);
+        categoryList.setModel(new DefaultListModel<>());
+        fileList.setModel(new DefaultListModel<>());
+        categoryList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
+        fileList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
+
+        categoryPane = new JScrollPane(categoryList);
+        filePane = new JScrollPane(fileList);
         categoryPane.setPreferredSize(new Dimension(180,100));
         filePane.setPreferredSize(new Dimension(160,0));
-        categoryTable.setRowSelectionAllowed(false);
-        categoryTable.getSelectionModel().addListSelectionListener(switchModel(categoryTable,fileTable));
-        categoryTable.addMouseListener(removeRow(categoryTable,()->{
-            String key = (String) categoryTable.getValueAt(categoryTable.getSelectedRow(),0);
-            FileMap.getInstance().remove(key);
-        }));
+        this.loadData();
 
-        fileTable.addMouseListener(removeRow(fileTable,()->{
-            String key = (String) fileTable.getValueAt(fileTable.getSelectedRow(),0);
-            FileMap.getInstance().get(key).removeRow(fileTable.getSelectedRow());
-        }));
         if(Account.getInstance().getState()) {
             categoryButton.setEnabled(Account.getInstance().getState());
             fileButton.setEnabled(Account.getInstance().getState());
 
-//            categoryList.getList().addMouseListener(new RemoveListener(categoryList));
-//            fileList.getList().addMouseListener(new RemoveListener(fileList));
+            categoryButton.addActionListener(addRow(categoryList, categoryText, _ ->{
+                FileMap.getInstance().put(categoryText.getText(), new DefaultListModel<>());
+                undoCategory.push(new StackData(categoryText.getText(), Undo.ADD));
+            }));
+
+
+            categoryList.addMouseListener(popupMenu(categoryList,undoCategory, e ->{
+                DefaultListModel<String> fileModelTemp = FileMap.getInstance().get(categoryList.getSelectedValue());
+                undoCategory.push(new StackData(categoryList.getSelectedValue(), fileModelTemp, Undo.REMOVE));
+                FileMap.getInstance().remove(categoryList.getSelectedValue());
+                categoryList.setSelectedIndex(-1);
+                fileList.setModel(new DefaultListModel<>());
+                e.removeElement(categoryList.getSelectedValue());
+            }, x -> {
+                switch(x.peek().getUndo()) {
+                    case ADD:
+                        DefaultListModel<String> tempModel = (DefaultListModel<String>) categoryList.getModel();
+                        FileMap.getInstance().remove((String)x.peek().getObject());
+                        tempModel.removeElement(x.peek().getObject());
+                        categoryList.setSelectedIndex(-1);
+                        fileList.setModel(new DefaultListModel<>());
+                        break;
+                    case REMOVE:
+                        DefaultListModel<String> model = (DefaultListModel<String>) categoryList.getModel();
+                        String category = (String) x.peek().getObject();
+                        model.addElement(category);
+                        FileMap.getInstance().put(category, x.peek().getModel());
+                        break;
+                }
+
+            }));
+
+            fileButton.addActionListener(addRow(fileList, fileText, e->{
+                if(categoryList.getSelectedValue()!=null){
+                    FileMap.getInstance().put(categoryList.getSelectedValue(), e);
+                } else {
+                    JOptionPane.showMessageDialog(null, "Please Choose a Category First");
+                    fileList.setModel(new DefaultListModel<>());
+                }
+            }));
+
+            fileList.addMouseListener(popupMenu(fileList,null, e->{
+                if (categoryList.getSelectedValue()!=null){
+                    e.removeElement(fileList.getSelectedValue());
+                    FileMap.getInstance().put(categoryList.getSelectedValue(), e);
+                }
+            },null));
         }
-//        categoryList.getList().addMouseListener(new MouseAdapter() {
-//            @SuppressWarnings("unchecked")
-//            @Override
-//            public void mouseClicked(MouseEvent e) {
-//                if (SwingUtilities.isLeftMouseButton(e)) {
-//                    JList<String> mouseList = (JList<String>) e.getSource();
-//                    String key = mouseList.getSelectedValue();
-//                    categoryList.getChildList().setModel(FileMap.getInstance().get(key));
-//                }
-//            }
-//        });
-
-//        for(String key: FileMap.getInstance().keySet()) {
-//            categoryList.addListElement(key);
-//        }
-
+        categoryList.addMouseListener(switchModel(categoryList,fileList));
 
         new WindowBuilder(this)
                 .setDimension(400,300)
@@ -101,7 +128,6 @@ public class Settings extends JFrame {
     public void start() {
         this.setVisible(true);
     }
-
 
     public static void clearInstance() {
         settings = null;
@@ -125,26 +151,31 @@ public class Settings extends JFrame {
         return main;
     }
 
-//    private void insertIntoTable() {
-//        configService.resetFile();
-//        for(String key: FileMap.getInstance().keySet()) {
-//            DefaultListModel<String> temp = FileMap.getInstance().get(key);
-//            for(int i=0; i < temp.getSize(); i++) {
-//                configService.addFile(key,temp.get(i));
-//            }
-//        }
-//    }
+    private void insertIntoTable() {
+        configService.resetFile();
+        for(String key: FileMap.getInstance().keySet()) {
+            DefaultListModel<String> temp = FileMap.getInstance().get(key);
+            for(int i=0; i < temp.getSize(); i++) {
+                configService.addFile(key,temp.get(i));
+            }
+        }
+    }
+
+    private void loadData() {
+        for(String key: FileMap.getInstance().keySet()) {
+            DefaultListModel<String> model = (DefaultListModel<String>) categoryList.getModel();
+            model.addElement(key);
+        }
+    }
 
 
     private JPanel getSouthPanel() {
         JPanel south =  new JPanel();
         JButton okButton = new JButton("Ok");
         okButton.addActionListener(_->{
-            System.out.println(FileMap.getInstance());
-//            insertIntoTable();
+            undoCategory.clear();
+            insertIntoTable();
             MainWindow.getInstance().updateFormat();
-//            categoryList.clearStack();
-//            fileList.clearStack();
             this.dispose();
             this.setVisible(false);
         });
@@ -186,32 +217,57 @@ public class Settings extends JFrame {
         return p;
     }
 
-    private ActionListener addRow(Table table, JTextField text, Lambda lambda) {
+    private ActionListener addRow(JList<String> list, JTextField text, Lambda lambda) {
         return _ -> {
-            table.addRow(new Object[] {text.getText()});
-            lambda.perform();
-            table.getSelectionModel().clearSelection();
+            DefaultListModel<String> temp = (DefaultListModel<String>) list.getModel();
+            if(!temp.contains(text.getText())){
+                temp.addElement(text.getText());
+                lambda.perform(temp);
+            }
+            else JOptionPane.showMessageDialog(null,text.getText() + " is already exist!");
+            text.setText("");
         };
     }
 
-    private MouseAdapter removeRow(Table table, Lambda lambda) {
+    private MouseAdapter popupMenu(JList<String> list, Stack<StackData> undoStack, Lambda lambda, UndoLambda undoLambda) {
         return new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                int row = categoryTable.getSelectedRow();
-                if(SwingUtilities.isRightMouseButton(e) && e.getClickCount() % 2 == 0) {
-                    lambda.perform();
-                    table.removeRow(row);
+                if(SwingUtilities.isRightMouseButton(e)) {
+                    JPopupMenu menu = new JPopupMenu();
+                    JMenuItem delete = new JMenuItem(new AbstractAction("Delete") {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            DefaultListModel<String> model = (DefaultListModel<String>) list.getModel();
+                            lambda.perform(model);
+                        }
+                    });
+                    menu.add(delete);
+
+                    if(undoLambda!=null){
+                        JMenuItem undo = new JMenuItem(new AbstractAction("Undo") {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                undoLambda.perform(undoStack);
+                            }
+                        });
+
+                        menu.add(undo);
+                    }
+                    menu.show(e.getComponent(),e.getX(),e.getY());
                 }
             }
         };
     }
 
-    private ListSelectionListener switchModel(Table parentTable, Table childTable) {
-        return e -> {
-            String key = (String) parentTable.getValueAt(parentTable.getSelectedRow(),0);
-            DefaultTableModel temp = FileMap.getInstance().get(key);
-            childTable.setModel(temp);
+
+    private MouseAdapter switchModel(JList<String> parentList, JList<String> childList) {
+        return new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                String key = parentList.getSelectedValue();
+                childList.setModel(FileMap.getInstance().get(key));
+            }
         };
     }
 

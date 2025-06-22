@@ -1,14 +1,9 @@
 package gui;
 
-import listeners.StackData;
-import listeners.Undo;
-
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Stack;
-import java.util.Vector;
 
 public class Table extends JTable {
     private DefaultTableModel model;
