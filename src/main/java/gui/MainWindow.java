@@ -10,6 +10,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.Dimension;
 import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -18,6 +19,8 @@ import java.util.Objects;
 import java.util.Vector;
 import java.util.stream.Stream;
 
+
+@FunctionalInterface
 interface PanelMaker {
     void set(JPanel p);
 }
@@ -82,9 +85,9 @@ public class MainWindow extends JFrame {
 
     public void load() {
         ArrayList<Object[]> obj = MainService.getInstance().load();
-        for(int y = 0; y < obj.size(); y++) {
-            Object[] leftObj = {obj.get(y)[0], obj.get(y)[1], obj.get(y)[2], obj.get(y)[3]};
-            Object[] rightObj = {obj.get(y)[4], obj.get(y)[5]};
+        for (Object[] objects : obj) {
+            Object[] leftObj = {objects[0], objects[1], objects[2], objects[3]};
+            Object[] rightObj = {objects[4], objects[5]};
             leftTable.getDefaultModel().addRow(leftObj);
             rightTable.getDefaultModel().addRow(rightObj);
         }
@@ -117,7 +120,6 @@ public class MainWindow extends JFrame {
                 for (int i = 0; i < tempModel.getSize(); i++) {
                     fileBox.addItem(tempModel.get(i));
                 }
-                fileBox.addItem("All");
             }
         };
     }
@@ -164,9 +166,7 @@ public class MainWindow extends JFrame {
 
         }), BorderLayout.NORTH);
 
-        p.add(setPanel(e -> {
-            e.add(leftPane);
-        }),BorderLayout.WEST);
+        p.add(setPanel(e -> e.add(leftPane)),BorderLayout.WEST);
 
         p.add(setPanel(e -> {
 
@@ -174,13 +174,13 @@ public class MainWindow extends JFrame {
             e.setLayout(new BoxLayout(e, BoxLayout.Y_AXIS));
 
             Stream.of(      new JButton("Add")     {{this.setToolTipText("Add Your Configuration");
-                                                            this.addActionListener(addRow(leftTable, rightTable));}},
+                                                            this.addActionListener(_ -> addRow(leftTable, rightTable));}},
                             new JButton("Remove")  {{this.setToolTipText("Remove Your Configuration");
-                                                            this.addActionListener(removeRow(leftTable, rightTable));}},
+                                                            this.addActionListener(_ -> removeRow(leftTable, rightTable));}},
                             new JButton("Clear")   {{this.setToolTipText("Delete All Your Configurations");
-                                                            this.addActionListener(clearRow(leftTable,rightTable));}},
+                                                            this.addActionListener(_ -> clearRow(leftTable,rightTable));}},
                             new JButton("Undo")    {{this.setToolTipText("Add or Remove Your Previous Configuration");
-                                                            this.addActionListener(undoRow(leftTable,rightTable));}},
+                                                            this.addActionListener(_ -> undoRow(leftTable,rightTable));}},
                             new JButton("Run")     {{this.setToolTipText("Start Sorting");}})
                     .forEach(b ->
                             {
@@ -193,11 +193,7 @@ public class MainWindow extends JFrame {
 
         }),BorderLayout.CENTER);
 
-        p.add(setPanel(e -> {
-
-            e.add(rightPane);
-
-        }),BorderLayout.EAST);
+        p.add(setPanel(e -> e.add(rightPane)),BorderLayout.EAST);
         return p;
     }
 
@@ -268,39 +264,45 @@ public class MainWindow extends JFrame {
         };
     }
 
-    private ActionListener addRow(Table leftTable, Table rightTable) {
-        return e -> {
-            try {
-                Object[] leftObject = {true, category.getInput(), file.getInput(), date.getInput()};
-                Object[] rightObject = {sourceFolder.getInput(), destFolder.getInput()};
-                leftTable.addRow(leftObject);
-                rightTable.addRow(rightObject);
-            } catch (NullPointerException x) {
-                JOptionPane.showMessageDialog(null, "Some input is blank!");
-            }
-        };
+
+    public void addRow(Table leftTable, Table rightTable) {
+        try {
+            MainService service = MainService.getInstance();
+            Object[] leftObject = {true, category.getInput(), file.getInput(), date.getInput()};
+            Object[] rightObject = {sourceFolder.getInput(), destFolder.getInput()};
+            leftTable.addRow(leftObject);
+            rightTable.addRow(rightObject);
+            service.add(true,category.getInput(),file.getInput(), date.getInput(), sourceFolder.getInput(), destFolder.getInput());
+        } catch (NullPointerException x) {
+            JOptionPane.showMessageDialog(null, "Some input is blank!");
+        }
     }
 
-    private ActionListener removeRow(Table leftTable, Table rightTable) {
-        return _->{
-            int selectedRow = leftTable.getSelectedRow();
-            leftTable.removeRow(selectedRow);
-            rightTable.removeRow(selectedRow);
-        };
+    public void removeRow(Table leftTable, Table rightTable) {
+        int selectedRow = leftTable.getSelectedRow();
+        MainService.getInstance().remove((String) leftTable.getValueAt(selectedRow, 1),
+                (String) leftTable.getValueAt(selectedRow, 2),
+                (String) leftTable.getValueAt(selectedRow, 3),
+                (String) rightTable.getValueAt(selectedRow, 0),
+                (String) rightTable.getValueAt(selectedRow, 1));
+        leftTable.removeRow(selectedRow);
+        rightTable.removeRow(selectedRow);
     }
 
-    private ActionListener clearRow(Table leftTable, Table rightTable) {
-        return _ -> {
-            leftTable.clearTable();
-            rightTable.clearTable();
-        };
+    private void clearRow(Table leftTable, Table rightTable) {
+        leftTable.clearTable();
+        rightTable.clearTable();
+        MainService.getInstance().truncate();
     }
 
-    private ActionListener undoRow(Table leftTable, Table righTable) {
-        return _->{
+    private void undoRow(Table leftTable, Table righTable) {
+        try{
             leftTable.undoRow();
             righTable.undoRow();
-        };
+
+        } catch (Exception e) {
+            return;
+        }
     }
 }
 

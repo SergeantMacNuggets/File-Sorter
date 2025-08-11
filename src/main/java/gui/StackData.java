@@ -20,7 +20,6 @@ public class StackData {
         this.undo = undo;
     }
 
-
     public StackData(Object object, DefaultListModel<String> model, Undo undo) {
         this.object = object;
         this.model = model;

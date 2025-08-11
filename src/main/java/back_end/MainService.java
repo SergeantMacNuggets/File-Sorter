@@ -55,6 +55,18 @@ public class MainService extends DatabaseService{
         }
     }
 
+    public void remove( String category, String file, String date, String src, String dest) {
+        String newSRC = src.replace('\\','/');
+        String newDST = dest.replace('\\','/');
+        String query = String.format("DELETE FROM main_table WHERE username_ForeignKey='%s' AND category='%s' AND file_format='%s' AND " +
+                "date='%s' AND source_folder='%s' AND destination_folder='%s'", Account.getInstance().getUsername() , category, file, date, newSRC, newDST);
+        try {
+            statement.execute(query);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public void truncate() {
         String query = String.format("DELETE FROM main_table WHERE username_ForeignKey='%s'",Account.getInstance().getUsername());
         try {

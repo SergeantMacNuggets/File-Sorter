@@ -5,6 +5,7 @@ import javax.swing.table.DefaultTableModel;
 import java.util.ArrayList;
 import java.util.Stack;
 
+
 public class Table extends JTable {
     private DefaultTableModel model;
     private Stack<StackData> undoStack;
@@ -46,9 +47,9 @@ public class Table extends JTable {
         model.setRowCount(0);
     }
 
-    public void undoRow() {
+    public void undoRow() throws Exception{
         if(undoLimit == 0) {
-            return;
+            throw new Exception();
         }
         switch (undoStack.peek().getUndo()) {
             case ADD:
