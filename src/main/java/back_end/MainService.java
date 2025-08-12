@@ -21,9 +21,11 @@ public class MainService extends DatabaseService{
 
     public ArrayList<Object[]> load() {
         ArrayList<Object[]> obj = new ArrayList<>();
-        String query = String.format("SELECT * FROM main_table WHERE username_ForeignKey = '%s'", Account.getInstance().getUsername());
+        String query = "SELECT * FROM main_table WHERE username_ForeignKey = ?";
         try {
-            resultSet = statement.executeQuery(query);
+            preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1,Account.getInstance().getUsername());
+            resultSet = preparedStatement.executeQuery();
             while(resultSet.next()) {
                 boolean state = resultSet.getBoolean("include_state");
                 String category = resultSet.getString("category");
@@ -43,13 +45,20 @@ public class MainService extends DatabaseService{
     public void add(boolean include_state, String category, String file, String date, String src, String dest) {
         String newSRC = src.replace('\\','/');
         String newDST = dest.replace('\\','/');
-        String query =
-                String.format("INSERT INTO main_table " +
+        String query =  "INSERT INTO main_table " +
                         "(username_ForeignKey, include_state, category, file_format, date, source_folder, destination_folder) " +
-                        "VALUES ('%s', %b, '%s', '%s', '%s', '%s', '%s')",
-                        Account.getInstance().getUsername(), include_state, category, file, date, newSRC, newDST);
+                        "VALUES (?, ?, ?, ?, ?, ?, ?)";
         try {
-            statement.execute(query);
+            preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1,Account.getInstance().getUsername());
+            preparedStatement.setBoolean(2,include_state);
+            preparedStatement.setString(3, category);
+            preparedStatement.setString(4, file);
+            preparedStatement.setString(5, date);
+            preparedStatement.setString(6, newSRC);
+            preparedStatement.setString(7, newDST);
+
+            preparedStatement.execute();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -58,19 +67,28 @@ public class MainService extends DatabaseService{
     public void remove( String category, String file, String date, String src, String dest) {
         String newSRC = src.replace('\\','/');
         String newDST = dest.replace('\\','/');
-        String query = String.format("DELETE FROM main_table WHERE username_ForeignKey='%s' AND category='%s' AND file_format='%s' AND " +
-                "date='%s' AND source_folder='%s' AND destination_folder='%s'", Account.getInstance().getUsername() , category, file, date, newSRC, newDST);
+        String query = "DELETE FROM main_table WHERE username_ForeignKey=? AND category=? AND file_format=? AND " +
+                "date=? AND source_folder=? AND destination_folder=?";
         try {
-            statement.execute(query);
+            preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1, Account.getInstance().getUsername());
+            preparedStatement.setString(2,category);
+            preparedStatement.setString(3,file);
+            preparedStatement.setString(4,date);
+            preparedStatement.setString(5,newSRC);
+            preparedStatement.setString(6,newDST);
+            preparedStatement.execute();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
     public void truncate() {
-        String query = String.format("DELETE FROM main_table WHERE username_ForeignKey='%s'",Account.getInstance().getUsername());
+        String query = "DELETE FROM main_table WHERE username_ForeignKey=?";
         try {
-            statement.execute(query);
+            preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1,Account.getInstance().getUsername());
+            preparedStatement.execute();
         } catch (SQLException e) {
             throw new RuntimeException();
         }

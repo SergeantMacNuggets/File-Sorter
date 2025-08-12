@@ -19,19 +19,23 @@ public class ConfigService extends DatabaseService {
     public void refresh() {
         DefaultListModel<String> temp;
         FileMap.getInstance().clear();
-        String query = String.format("SELECT * FROM config_table WHERE username_ForeignKey = '%s'",
+        String query = String.format("SELECT * FROM config_table WHERE username_ForeignKey = ?",
                 Account.getInstance().getUsername());
         try {
-            resultSet = statement.executeQuery(query);
+            preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1, Account.getInstance().getUsername());
+            resultSet = preparedStatement.executeQuery();
             while(resultSet.next()) {
                 String cat = resultSet.getString("category");
                 FileMap.getInstance().put(cat,null);
             }
             for(String key: FileMap.getInstance().keySet()) {
                 temp = new DefaultListModel<>();
-                query = String.format("SELECT * FROM config_table WHERE username_ForeignKey = '%s' AND category = '%s'",
-                        Account.getInstance().getUsername(), key);
-                resultSet = statement.executeQuery(query);
+                query = "SELECT * FROM config_table WHERE username_ForeignKey = ? AND category = ?";
+                preparedStatement = connection.prepareStatement(query);
+                preparedStatement.setString(1, Account.getInstance().getUsername());
+                preparedStatement.setString(2, key);
+                resultSet = preparedStatement.executeQuery();
                 while(resultSet.next()) {
                     temp.addElement(resultSet.getString("file_format"));
                 }
@@ -43,20 +47,24 @@ public class ConfigService extends DatabaseService {
     }
 
     public void resetFile() {
-        String query = String.format("DELETE FROM config_table WHERE username_ForeignKey = '%s'",Account.getInstance().getUsername());
+        String query = "DELETE FROM config_table WHERE username_ForeignKey = ?";
         try {
-            statement.execute(query);
+            preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1,Account.getInstance().getUsername());
+            preparedStatement.execute();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
     public void addFile(String category, String file) {
-        String query = String.format
-                        ("INSERT INTO config_table (username_ForeignKey,category,file_format) VALUES ('%s','%s','%s')",
-                                Account.getInstance().getUsername(), category, file);
         try {
-            statement.execute(query);
+            String query = "INSERT INTO config_table (username_ForeignKey,category,file_format) VALUES (?,?,?)";
+            preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1,Account.getInstance().getUsername());
+            preparedStatement.setString(2,category);
+            preparedStatement.setString(3,file);
+            preparedStatement.execute();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

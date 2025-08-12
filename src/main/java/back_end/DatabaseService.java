@@ -1,14 +1,14 @@
 package back_end;
 
-import java.sql.Connection;
-import java.sql.Statement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import com.mysql.cj.x.protobuf.MysqlxPrepare;
+
+import java.sql.*;
 
 public class DatabaseService {
     protected Connection connection;
     protected Statement statement;
     protected ResultSet resultSet;
+    protected PreparedStatement preparedStatement;
 
     public DatabaseService() {
         String query = "USE file_sorter_schema";

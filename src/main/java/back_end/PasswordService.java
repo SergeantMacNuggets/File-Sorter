@@ -2,6 +2,7 @@ package back_end;
 
 import org.mindrot.jbcrypt.BCrypt;
 
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 class PasswordService extends DatabaseService {
@@ -14,12 +15,17 @@ class PasswordService extends DatabaseService {
 
     public void changePassword(String user, String password) {
         try {
-            String query = String.format("SELECT * FROM %s WHERE username = '%s'",this.table, user);
-            resultSet = statement.executeQuery(query);
+            String query = String.format("SELECT * FROM %s WHERE username = ?",this.table);
+            preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1,user);
+            resultSet = preparedStatement.executeQuery();
             if(resultSet.next()) {
                 String newPassword = BCrypt.hashpw(password,BCrypt.gensalt(12));
-                query = String.format("UPDATE %s SET password='%s' WHERE username = '%s'",this.table,newPassword,user);
-                statement.execute(query);
+                query = String.format("UPDATE %s SET password=? WHERE username = ?",this.table);
+                preparedStatement = connection.prepareStatement(query);
+                preparedStatement.setString(1,newPassword);
+                preparedStatement.setString(2,user);
+                preparedStatement.execute();
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -28,8 +34,11 @@ class PasswordService extends DatabaseService {
 
     public void addUser(String user, String pass) throws SQLException{
         String encryptedPass = BCrypt.hashpw(pass, BCrypt.gensalt(12));
-        String query = String.format("INSERT INTO %s (username, password) VALUES ('%s','%s')", this.table, user, encryptedPass);
-        super.statement.execute(query);
+        String query = String.format("INSERT INTO %s (username, password) VALUES (?,?)", this.table);
+        preparedStatement = connection.prepareStatement(query);
+        preparedStatement.setString(1, user);
+        preparedStatement.setString(2, encryptedPass);
+        preparedStatement.execute();
     }
 
     public boolean isTableEmpty() {
@@ -47,8 +56,10 @@ class PasswordService extends DatabaseService {
 
     public boolean authorize(String username, String password) {
         try {
-            String query = String.format("SELECT * FROM %s WHERE username = '%s'", this.table ,username);
-            resultSet = statement.executeQuery(query);
+            String query = String.format("SELECT * FROM %s WHERE username = ?", this.table);
+            preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1, username);
+            resultSet = preparedStatement.executeQuery();
 
             if(resultSet.next()) {
                 return (username.equals(resultSet.getString("username")) &&
@@ -64,8 +75,9 @@ class PasswordService extends DatabaseService {
 
     public boolean authorizeGuest(String username) {
         try {
-            String query = String.format("SELECT * FROM %s WHERE username = '%s'", this.table ,username);
-            resultSet = statement.executeQuery(query);
+            String query = String.format("SELECT * FROM %s WHERE username = ?", this.table);
+            preparedStatement = connection.prepareStatement(query);
+            resultSet = preparedStatement.executeQuery();
 
             if(resultSet.next()) {
                 return username.equals(resultSet.getString("username"));
