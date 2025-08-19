@@ -187,6 +187,7 @@ public class MainWindow extends JFrame {
                                 b.setPreferredSize(new Dimension(80, 25));
                                 b.setForeground(SpecificColor.buttonText);
                                 b.setBackground(SpecificColor.buttonColor);
+                                b.setEnabled(Account.getInstance().getState());
                                 e.add(setPanel(k -> k.add(b)));
                             }
                     );

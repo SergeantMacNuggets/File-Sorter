@@ -77,6 +77,7 @@ class PasswordService extends DatabaseService {
         try {
             String query = String.format("SELECT * FROM %s WHERE username = ?", this.table);
             preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1, username);
             resultSet = preparedStatement.executeQuery();
 
             if(resultSet.next()) {
